@@ -40,8 +40,8 @@ Cloudflare은 사용하지 않습니다. `automation-state` 브랜치는 배포 
 블로그 GitHub 저장소를 비공개로 만든 뒤 Settings → Secrets and variables → Actions에 다음을 등록합니다.
 
 - SILGUM_SOURCE_READ_TOKEN: fine-grained token. SILGUM 앱 저장소 하나만 지정하고 Contents: read 권한만 부여합니다.
-- OPENAI_API_KEY: 원고 생성 API 키. API 사용량 과금이 적용됩니다.
-- 선택 사항인 Actions variable OPENAI_MODEL: 기본값은 gpt-6-luna입니다.
+- OPENAI_API_KEY: 원고 생성에 쓰는 키. 현재 스크립트는 OpenRouter Anthropic 호환 엔드포인트를 사용하므로 OpenRouter 키를 등록합니다. (이름은 하네스 호환을 위해 OPENAI_API_KEY로 유지) 무료 모델을 쓰려면 OPENAI_MODEL에 `openrouter/<모델>:free` 형태로 지정합니다.
+- 선택 사항인 Actions variable OPENAI_MODEL: 기본값은 anthropic/claude-sonnet-4-6입니다. OpenRouter 무료 모델은 openrouter/poolside/laguna-s-2.1:free 등 `:free` 접미를 쓰면 됩니다.
 
 워크플로는 블로그 저장소의 기본 GITHUB_TOKEN에만 Contents: write와 Pull requests: write를 요청합니다. 앱 저장소 토큰은 checkout에서만 사용하고 Git 자격 증명으로 저장하지 않습니다. 별도 자동화 상태는 automation-state 브랜치의 state.json에 기록합니다. Actions 설정에서 workflow token에 read/write 권한이 허용되어야 합니다.
 
