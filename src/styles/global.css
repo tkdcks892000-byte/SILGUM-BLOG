@@ -1,0 +1,70 @@
+:root {
+	color-scheme: light;
+	--ink: #19221f;
+	--muted: #64716c;
+	--line: #e0e7e3;
+	--surface: #fff;
+	--page: #fbfcfa;
+	--accent: #16745f;
+	--accent-hover: #105b4a;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--page);
+	color: var(--ink);
+	font-size: 17px;
+	line-height: 1.75;
+}
+
+main {
+	width: min(100% - 2rem, 68rem);
+	margin-inline: auto;
+}
+
+h1,
+h2,
+h3,
+p {
+	margin-top: 0;
+}
+
+h1,
+h2,
+h3 {
+	line-height: 1.25;
+}
+
+a {
+	color: var(--accent);
+}
+
+a:hover {
+	color: var(--accent-hover);
+}
+
+::selection {
+	background: #d4eee4;
+	color: var(--ink);
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}

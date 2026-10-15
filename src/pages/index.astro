@@ -1,0 +1,188 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE, SILGUM_URL } from '../consts';
+import { withBase } from '../lib/site-paths';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const seasonOne = [
+	'검색엔진 대신 검색 허브를 택한 이유 — 시작한 날은 기억나지 않는다',
+	'8개 검색 서비스를 고른 기준과 빠진 후보들',
+	'화면의 숫자를 SILGUM 내부 관측으로 한정한 이유',
+	'뉴스 본문을 수집하지 않기로 한 결정',
+	'1인 운영과 하루 한 번 cron이라는 제약',
+];
+---
+
+<!doctype html>
+<html lang="ko">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="hero">
+				<p class="eyebrow">BUILDING SILGUM, IN PUBLIC</p>
+				<h1>검색 허브를 만들며<br />배운 것을 기록합니다.</h1>
+				<p class="intro">
+					SILGUM을 혼자 만들고 운영하면서 내린 결정, 실패, 실제 운영 숫자를 남깁니다.
+					서비스 안에서 관측한 검색량은 외부 검색 트렌드와 구분해 씁니다.
+				</p>
+				<a class="button" href={`${SILGUM_URL}/about`}>SILGUM 알아보기</a>
+			</section>
+
+			<section class="recent" aria-labelledby="recent-heading">
+				<div class="section-heading">
+					<p class="eyebrow">LATEST</p>
+					<h2 id="recent-heading">최근 기록</h2>
+				</div>
+				{posts.length ? (
+					<ul class="post-list">
+						{posts.map((post) => (
+							<li>
+								<a href={withBase(`blog/${post.id}/`)}>
+									<span>{post.data.title}</span>
+									<time datetime={post.data.pubDate.toISOString()}>
+										{post.data.pubDate.toLocaleDateString('ko-KR')}
+									</time>
+								</a>
+							</li>
+						))}
+					</ul>
+				) : (
+					<p class="empty-state">첫 번째 기록을 준비하고 있습니다.</p>
+				)}
+			</section>
+
+			<section class="series" aria-labelledby="series-heading">
+				<div class="section-heading">
+					<p class="eyebrow">SEASON 01</p>
+					<h2 id="series-heading">검색 허브의 선택</h2>
+				</div>
+				<ol>
+					{seasonOne.map((title, index) => (
+						<li><span class="episode">#{String(index + 1).padStart(2, '0')}</span>{title}</li>
+					))}
+				</ol>
+			</section>
+
+			<p class="site-note">이 사이트는 SILGUM의 운영 기록입니다. 수치는 SILGUM 안에서 관측한 값만 사용합니다.</p>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main {
+		padding-top: clamp(3.5rem, 9vw, 7rem);
+	}
+	.hero {
+		max-width: 48rem;
+		padding-bottom: clamp(4rem, 9vw, 7rem);
+	}
+	.eyebrow {
+		margin: 0 0 0.75rem;
+		color: var(--accent);
+		font-size: 0.75rem;
+		font-weight: 750;
+		letter-spacing: 0.12em;
+	}
+	h1 {
+		margin: 0;
+		font-size: clamp(2.5rem, 7vw, 5rem);
+		letter-spacing: -0.06em;
+	}
+	.intro {
+		max-width: 40rem;
+		margin: 1.5rem 0 2rem;
+		color: var(--muted);
+		font-size: clamp(1.05rem, 2vw, 1.3rem);
+		line-height: 1.8;
+	}
+	.button {
+		display: inline-block;
+		padding: 0.75rem 1.1rem;
+		border-radius: 0.5rem;
+		background: var(--accent);
+		color: white;
+		font-size: 0.95rem;
+		font-weight: 700;
+		text-decoration: none;
+	}
+	.button:hover {
+		background: var(--accent-hover);
+		color: white;
+	}
+	.recent,
+	.series {
+		padding-block: 2.25rem;
+		border-top: 1px solid var(--line);
+	}
+	.section-heading h2 {
+		margin: 0 0 1.25rem;
+		font-size: clamp(1.5rem, 3vw, 2rem);
+		letter-spacing: -0.035em;
+	}
+	.post-list,
+	.series ol {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.post-list li,
+	.series li {
+		border-top: 1px solid var(--line);
+	}
+	.post-list a,
+	.series li {
+		display: flex;
+		align-items: baseline;
+		gap: 1rem;
+		padding: 1rem 0;
+		color: var(--ink);
+		text-decoration: none;
+	}
+	.post-list a {
+		justify-content: space-between;
+	}
+	.post-list a:hover span {
+		color: var(--accent);
+	}
+	time,
+	.empty-state,
+	.site-note {
+		color: var(--muted);
+		font-size: 0.9rem;
+	}
+	.empty-state {
+		padding-block: 1rem;
+	}
+	.episode {
+		color: var(--accent);
+		font-size: 0.8rem;
+		font-weight: 750;
+		letter-spacing: 0.08em;
+		white-space: nowrap;
+	}
+	.site-note {
+		margin: 1rem 0 0;
+		padding-top: 1.25rem;
+		border-top: 1px solid var(--line);
+		line-height: 1.7;
+	}
+	@media (max-width: 560px) {
+		.post-list a,
+		.series li {
+			align-items: flex-start;
+		}
+		.post-list a {
+			flex-direction: column;
+			gap: 0.35rem;
+		}
+	}
+</style>

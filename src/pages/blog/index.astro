@@ -1,0 +1,86 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import Header from '../../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { withBase } from '../../lib/site-paths';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<!doctype html>
+<html lang="ko">
+	<head>
+		<BaseHead title={`기록 | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<p class="eyebrow">THE JOURNAL</p>
+			<h1>개발 기록</h1>
+			{posts.length ? (
+				<ul>
+					{posts.map((post) => (
+						<li>
+							<a href={withBase(`blog/${post.id}/`)}>
+								<h2>{post.data.title}</h2>
+								<p>{post.data.description}</p>
+								<FormattedDate date={post.data.pubDate} />
+							</a>
+						</li>
+					))}
+				</ul>
+			) : (
+				<p class="empty-state">첫 글을 정리하고 있습니다. 확인이 끝난 기록부터 공개합니다.</p>
+			)}
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	main {
+		min-height: 55vh;
+		padding-top: 4rem;
+	}
+	.eyebrow {
+		color: var(--accent);
+		font-size: 0.75rem;
+		font-weight: 750;
+		letter-spacing: 0.12em;
+	}
+	h1 {
+		margin-bottom: 2rem;
+		font-size: clamp(2.25rem, 6vw, 3.5rem);
+		letter-spacing: -0.05em;
+	}
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	li {
+		border-top: 1px solid var(--line);
+	}
+	li a {
+		display: block;
+		padding: 1.5rem 0;
+		color: var(--ink);
+		text-decoration: none;
+	}
+	li a:hover h2 {
+		color: var(--accent);
+	}
+	h2 {
+		margin: 0 0 0.5rem;
+		font-size: 1.35rem;
+	}
+	li p,
+	.empty-state {
+		color: var(--muted);
+	}
+</style>

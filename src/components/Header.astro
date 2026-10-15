@@ -1,0 +1,67 @@
+﻿---
+import { SITE_TITLE, SILGUM_URL } from '../consts';
+import { withBase } from '../lib/site-paths';
+import HeaderLink from './HeaderLink.astro';
+---
+
+<header>
+	<nav aria-label="주요 메뉴">
+		<a class="brand" href={withBase()}>{SITE_TITLE}</a>
+		<div class="internal-links">
+			<HeaderLink href={withBase()}>홈</HeaderLink>
+			<HeaderLink href={withBase('blog/')}>기록</HeaderLink>
+			<HeaderLink href={withBase('about/')}>소개</HeaderLink>
+		</div>
+		<a class="product-link" href={`${SILGUM_URL}/tools`}>SILGUM 사용법</a>
+	</nav>
+</header>
+<style>
+	header {
+		border-bottom: 1px solid var(--line);
+		background: var(--surface);
+	}
+	nav {
+		width: min(100% - 2rem, 68rem);
+		min-height: 4.25rem;
+		margin-inline: auto;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+	.brand {
+		color: var(--ink);
+		font-size: 1rem;
+		font-weight: 750;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+	.internal-links {
+		display: flex;
+		gap: clamp(0.5rem, 2vw, 1.5rem);
+	}
+	nav a {
+		padding-block: 0.45rem;
+		color: var(--muted);
+		text-decoration: none;
+	}
+	nav a:hover,
+	nav a.active {
+		color: var(--ink);
+	}
+	.product-link {
+		font-size: 0.875rem;
+		white-space: nowrap;
+	}
+	@media (max-width: 560px) {
+		nav {
+			flex-wrap: wrap;
+			justify-content: space-between;
+			padding-block: 0.6rem;
+		}
+		.internal-links {
+			order: 3;
+			width: 100%;
+		}
+	}
+</style>
