@@ -227,6 +227,8 @@ async function main() {
 		headers: {
 			Authorization: 'Bearer ' + openAiApiKey,
 			'Content-Type': 'application/json',
+			'HTTP-Referer': 'https://github.com/' + githubRepository,
+			'X-Title': 'SILGUM blog evidence draft',
 		},
 		body: JSON.stringify({
 			model: openAiModel,
