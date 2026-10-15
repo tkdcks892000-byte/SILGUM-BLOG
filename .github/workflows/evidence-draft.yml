@@ -51,7 +51,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'openrouter/poolside/laguna-s-2.1:free' }}
           SOURCE_DIRECTORY: source
         run: node scripts/generate-evidence-draft.mjs
 
@@ -85,6 +85,6 @@ jobs:
         if: steps.draft.outputs.skip != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'openrouter/poolside/laguna-s-2.1:free' }}
           SOURCE_SHA: ${{ steps.draft.outputs.source_sha }}
         run: node scripts/checkpoint-evidence-source.mjs
