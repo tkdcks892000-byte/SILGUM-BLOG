@@ -1,28 +1,66 @@
-# SILGUM 개발일지
+# SILGUM 콘텐츠 블로그
 
-Astro 정적 블로그. Markdown 글은 `src/content/blog/`에 추가하고 기본 branch `main`에 push하면 GitHub Actions가 GitHub Pages로 배포한다.
+Astro 정적 사이트입니다. Markdown 원고는 `src/content/blog/`에 두고 Cloudflare Pages의 Git 연동으로 `main` push 때 빌드·배포합니다. 글의 원본은 이 Git 저장소이며, 외부 플랫폼에 동일한 전문을 자동 복제하지 않습니다.
 
 ## 로컬 실행
 
 ```sh
-npm install
+npm ci
 npm run dev
 npm run build
 npm run preview
 ```
 
-## GitHub Pages 연결
+## Cloudflare Pages 연결
 
-이 프로젝트는 `https://tkdcks892000-byte.github.io/silgum-blog/` 주소를 기준으로 `site`와 `base`가 설정되어 있다.
+현재 저장소는 별도 로컬 Git 저장소이며 remote와 Cloudflare 계정 연결은 아직 없습니다. GitHub 저장소를 만든 뒤 이 저장소를 push하고 Cloudflare Pages의 Git integration에 연결합니다. 공개 또는 비공개 저장소를 쓸 수 있으며, GitHub App 권한은 해당 저장소만 허용합니다.
 
-1. GitHub 계정 `tkdcks892000-byte`에 `silgum-blog` 이름의 **공개 저장소**를 만든다. GitHub Free에서는 Pages가 공개 저장소에서 제공된다.
-2. 저장소 Settings → Pages → Build and deployment에서 Source를 **GitHub Actions**로 선택한다.
-3. `main` branch를 원격에 push한다. `.github/workflows/deploy.yml`이 빌드·배포한다.
+Pages 빌드 설정:
 
-이 폴더는 현재 별도 로컬 Git 저장소다. 원격 저장소는 아직 연결하지 않았다.
+- Production branch: `main`
+- Root directory: 저장소 루트
+- Build command: `npm run build`
+- Build output directory: `dist`
 
-## 글 발행 기준
+Astro는 정적 출력만 사용하므로 Cloudflare adapter는 필요하지 않습니다. 먼저 `pages.dev` 미리보기에서 배포 결과를 확인한 다음 Pages 대시보드의 Custom domains에 `blog.silgum.co.kr`을 등록합니다. 현재 `silgum.co.kr` DNS는 Gabia nameserver를 사용하므로, Pages가 안내하는 CNAME을 Gabia DNS에 추가하면 도메인 전체의 nameserver를 이전하지 않고 하위 도메인을 연결할 수 있습니다. 기존에 같은 호스트 이름의 레코드가 있으면 먼저 확인해야 합니다.
 
-- `src/content/blog/`에는 발행 가능한 글만 둔다. 확인 전 원고와 개인 기억의 빈칸은 게시하지 않는다.
-- 검색 수치는 SILGUM 안에서 관측한 값이라고 표시한다. 외부 검색량이나 트렌드로 부풀려 쓰지 않는다.
-- SILGUM 링크의 글별 `ref` 값은 앱에서 인식하도록 추가한 뒤 사용한다. 현재 `blog_dev_01`은 허용되지 않아 `unknown`으로 기록된다.
+Cloudflare Pages의 branch controls에서 production branch를 main으로 두고, automation-state는 preview 배포 대상에서 제외합니다. 콘텐츠 검토 PR preview는 원고를 발행하지 않으며, drafts/는 Astro 콘텐츠 컬렉션에 포함되지 않습니다.
+
+## 근거 기반 초안 자동화
+
+.github/workflows/evidence-draft.yml은 매주 월요일과 수동 실행 때 SILGUM 저장소의 허용 파일 변경을 확인합니다. 변경이 없으면 모델을 호출하지 않습니다. 변경이 있어도 독자에게 유용하고 중복되지 않는 설명이 없으면 초안을 만들지 않습니다.
+
+현재 읽기 허용 목록은 다음 파일뿐입니다.
+
+- app/lib/trends/config.ts
+- app/lib/trends/score.ts — 변경된 diff만 전달
+- app/terms/page.tsx
+- docs/COLD-START.md
+
+초기 실행은 설정·약관·콜드스타트 문서의 현재 내용을 한 번 읽어 기준점을 만듭니다. 운영 리포트, 데이터베이스, 원시 검색어, 세션 식별자, 뉴스 본문은 수집하지 않습니다. 지정 파일의 근거에서 초안을 생성한 다음 출처 파일, 문장 길이, 공개 SILGUM 링크, 외부 URL, 운영자 1인칭 경험 표현을 검사합니다. 기존 공개 글과 열린 자동 초안 PR의 제목도 모델에 전달해 제목 수준의 반복을 줄입니다. 의미상 중복·사실·저작권은 자동 검사가 보증하지 않으므로 PR에서 확인합니다. 통과한 원고는 drafts/에 저장하고 비공개 draft PR을 엽니다. 이 단계에서는 게시되지 않습니다.
+
+### 저장소 설정
+
+블로그 GitHub 저장소를 비공개로 만든 뒤 Settings → Secrets and variables → Actions에 다음을 등록합니다.
+
+- SILGUM_SOURCE_READ_TOKEN: fine-grained token. SILGUM 앱 저장소 하나만 지정하고 Contents: read 권한만 부여합니다.
+- OPENAI_API_KEY: 원고 생성 API 키. API 사용량 과금이 적용됩니다.
+- 선택 사항인 Actions variable OPENAI_MODEL: 기본값은 gpt-6-luna입니다.
+
+워크플로는 블로그 저장소의 기본 GITHUB_TOKEN에만 Contents: write와 Pull requests: write를 요청합니다. 앱 저장소 토큰은 checkout에서만 사용하고 Git 자격 증명으로 저장하지 않습니다. 별도 자동화 상태는 automation-state 브랜치의 state.json에 기록합니다. Actions 설정에서 workflow token에 read/write 권한이 허용되어야 합니다.
+
+선택 파일 내용은 초안 생성을 위해 OpenAI API에 전송됩니다. 요청에 store: false를 지정해 Responses API의 기본 애플리케이션 상태 저장을 끄지만, OpenAI의 오용 감시 로그는 별도 정책에 따라 최대 30일 보관될 수 있습니다. 더 엄격한 보존 조건이 필요하면 키를 등록하기 전에 조직의 데이터 제어 설정을 확인합니다. 자료 범위를 넓히기 전에 허용 목록과 개인정보 영향을 다시 검토합니다.
+
+스케줄 자동화는 계정의 Actions 정책과 secret 등록이 완료된 뒤에만 작동합니다. 현재는 원격 저장소와 secret이 설정되지 않아 API 호출·PR 생성·배포가 수행되지 않았습니다.
+
+### 승인 후 발행
+
+자동 초안 PR은 Markdown diff로 검토합니다. PR preview 사이트에는 아직 초안이 표시되지 않습니다. Ready for review로 바꾸어 main에 merge하는 행위가 공개 승인입니다. merge가 끝나면 별도 workflow가 원고를 다시 검사해 published/에 검토본을 보관하고 src/content/blog/로 승격한 뒤 main에 커밋합니다. Cloudflare Pages가 main push를 배포합니다. 저장소 branch protection이 Actions의 main push를 막으면 발행 workflow가 실패하므로, 해당 규칙을 쓰는 경우 발행 승인 방식을 조정해야 합니다. 자동화는 사람의 merge 없이 초안을 공개하지 않습니다.
+
+## 원고 기준
+
+- `src/content/blog/`에는 출처로 검증된 발행 가능 원고만 둡니다. 제품 코드·문서·변경 기록에서 확인할 수 없는 개인 경험은 채워 넣지 않습니다.
+- SILGUM 내부 검색 수와 외부 검색량을 구분합니다. 합산 트렌드 점수를 시장 검색량이라고 표현하지 않습니다.
+- 뉴스 본문이나 타인의 이미지·자료를 재배포하지 않고 출처와 원문 링크를 확인합니다.
+- SILGUM 링크의 글별 `ref`는 앱에서 허용되기 전까지 사용하지 않습니다. 현재 `blog_dev_01`은 `unknown`으로 기록됩니다.
+- 공개는 자동 초안 생성만으로 이루어지지 않습니다. 사람이 검토 후 draft PR을 merge하면 재검증·승격·Pages 배포가 이어집니다.

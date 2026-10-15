@@ -1,0 +1,90 @@
+name: Evidence-based content draft
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 0 * * 1'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: evidence-draft-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out blog repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22.12'
+
+      - name: Check required secrets
+        env:
+          SOURCE_READ_TOKEN: ${{ secrets.SILGUM_SOURCE_READ_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          test -n "$SOURCE_READ_TOKEN" || { echo "Add SILGUM_SOURCE_READ_TOKEN to this repository's Actions secrets."; exit 1; }
+          test -n "$OPENAI_API_KEY" || { echo "Add OPENAI_API_KEY to this repository's Actions secrets."; exit 1; }
+
+      - name: Check out the allowlisted SILGUM source
+        uses: actions/checkout@v7
+        with:
+          repository: tkdcks892000-byte/SILGUM
+          ref: main
+          path: source
+          token: ${{ secrets.SILGUM_SOURCE_READ_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Generate and validate an unpublished draft
+        id: draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          SOURCE_DIRECTORY: source
+        run: node scripts/generate-evidence-draft.mjs
+
+      - name: Push the draft branch
+        if: steps.draft.outputs.skip != 'true'
+        env:
+          DRAFT_BRANCH: ${{ steps.draft.outputs.branch }}
+          DRAFT_PATH: ${{ steps.draft.outputs.draft_path }}
+        run: |
+          if git ls-remote --exit-code --heads origin "$DRAFT_BRANCH" >/dev/null 2>&1; then
+            rm -f "$DRAFT_PATH"
+            git fetch origin "$DRAFT_BRANCH"
+            git checkout -B "$DRAFT_BRANCH" FETCH_HEAD
+          else
+            git checkout -b "$DRAFT_BRANCH"
+            git add -- "$DRAFT_PATH"
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "docs: prepare evidence-based content draft"
+            git push origin "$DRAFT_BRANCH"
+          fi
+
+      - name: Open a draft pull request
+        if: steps.draft.outputs.skip != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRAFT_BRANCH: ${{ steps.draft.outputs.branch }}
+          DRAFT_TITLE: ${{ steps.draft.outputs.pr_title }}
+          DRAFT_BODY_PATH: ${{ steps.draft.outputs.pr_body_path }}
+        run: node scripts/create-evidence-pr.mjs
+
+      - name: Record the processed source commit
+        if: steps.draft.outputs.skip != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          SOURCE_SHA: ${{ steps.draft.outputs.source_sha }}
+        run: node scripts/checkpoint-evidence-source.mjs

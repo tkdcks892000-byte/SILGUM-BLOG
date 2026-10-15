@@ -1,8 +1,10 @@
 ﻿---
+import { SITE_TITLE } from '../consts';
+
 const year = new Date().getFullYear();
 ---
 
-<footer>© {year} SILGUM 개발일지</footer>
+<footer>© {year} {SITE_TITLE}</footer>
 <style>
 	footer {
 		width: min(100% - 2rem, 68rem);

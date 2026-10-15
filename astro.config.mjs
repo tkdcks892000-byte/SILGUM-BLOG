@@ -3,7 +3,6 @@ import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-	site: 'https://tkdcks892000-byte.github.io',
-	base: '/silgum-blog',
+	site: 'https://blog.silgum.co.kr',
 	integrations: [mdx(), sitemap()],
 });
