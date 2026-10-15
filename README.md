@@ -1,6 +1,6 @@
 # SILGUM 콘텐츠 블로그
 
-Astro 정적 사이트입니다. Markdown 원고는 `src/content/blog/`에 두고 Cloudflare Pages의 Git 연동으로 `main` push 때 빌드·배포합니다. 글의 원본은 이 Git 저장소이며, 외부 플랫폼에 동일한 전문을 자동 복제하지 않습니다.
+Astro 정적 사이트입니다. Markdown 원고는 `src/content/blog/`에 두고 `main` push 때 GitHub Actions가 빌드해 GitHub Pages에 배포합니다. 글의 원본은 이 Git 저장소이며, 외부 플랫폼에 동일한 전문을 자동 복제하지 않습니다.
 
 ## 로컬 실행
 
@@ -11,20 +11,16 @@ npm run build
 npm run preview
 ```
 
-## Cloudflare Pages 연결
+## GitHub Pages 연결
 
-현재 저장소는 별도 로컬 Git 저장소이며 remote와 Cloudflare 계정 연결은 아직 없습니다. GitHub 저장소를 만든 뒤 이 저장소를 push하고 Cloudflare Pages의 Git integration에 연결합니다. 공개 또는 비공개 저장소를 쓸 수 있으며, GitHub App 권한은 해당 저장소만 허용합니다.
+배포는 GitHub Actions workflow(`deploy.yml`)가 담당합니다. 대시보드에서:
 
-Pages 빌드 설정:
+- Settings → Pages → Source: **GitHub Actions**
+- main push 또는 수동 실행으로 빌드·배포
+- Custom domain: `blog.silgum.co.kr` (Gabia DNS에 A 레코드 추가, 상세 값은 대시보드 안내 참조)
+- Enforce HTTPS: 도메인 확인 후 체크
 
-- Production branch: `main`
-- Root directory: 저장소 루트
-- Build command: `npm run build`
-- Build output directory: `dist`
-
-Astro는 정적 출력만 사용하므로 Cloudflare adapter는 필요하지 않습니다. 먼저 `pages.dev` 미리보기에서 배포 결과를 확인한 다음 Pages 대시보드의 Custom domains에 `blog.silgum.co.kr`을 등록합니다. 현재 `silgum.co.kr` DNS는 Gabia nameserver를 사용하므로, Pages가 안내하는 CNAME을 Gabia DNS에 추가하면 도메인 전체의 nameserver를 이전하지 않고 하위 도메인을 연결할 수 있습니다. 기존에 같은 호스트 이름의 레코드가 있으면 먼저 확인해야 합니다.
-
-Cloudflare Pages의 branch controls에서 production branch를 main으로 두고, automation-state는 preview 배포 대상에서 제외합니다. 콘텐츠 검토 PR preview는 원고를 발행하지 않으며, drafts/는 Astro 콘텐츠 컬렉션에 포함되지 않습니다.
+Cloudflare은 사용하지 않습니다. `automation-state` 브랜치는 배포 대상이 아닙니다. 콘텐츠 검토 PR preview는 원고를 발행하지 않으며, drafts/는 Astro 콘텐츠 컬렉션에 포함되지 않습니다.
 
 ## 근거 기반 초안 자동화
 
@@ -55,7 +51,7 @@ Cloudflare Pages의 branch controls에서 production branch를 main으로 두고
 
 ### 승인 후 발행
 
-자동 초안 PR은 Markdown diff로 검토합니다. PR preview 사이트에는 아직 초안이 표시되지 않습니다. Ready for review로 바꾸어 main에 merge하는 행위가 공개 승인입니다. merge가 끝나면 별도 workflow가 원고를 다시 검사해 published/에 검토본을 보관하고 src/content/blog/로 승격한 뒤 main에 커밋합니다. Cloudflare Pages가 main push를 배포합니다. 저장소 branch protection이 Actions의 main push를 막으면 발행 workflow가 실패하므로, 해당 규칙을 쓰는 경우 발행 승인 방식을 조정해야 합니다. 자동화는 사람의 merge 없이 초안을 공개하지 않습니다.
+자동 초안 PR은 Markdown diff로 검토합니다. PR preview 사이트에는 아직 초안이 표시되지 않습니다. Ready for review로 바꾸어 main에 merge하는 행위가 공개 승인입니다. merge가 끝나면 별도 workflow가 원고를 다시 검사해 published/에 검토본을 보관하고 src/content/blog/로 승격한 뒤 main에 커밋합니다. GitHub Pages workflow가 main push를 배포합니다. 저장소 branch protection이 Actions의 main push를 막으면 발행 workflow가 실패하므로, 해당 규칙을 쓰는 경우 발행 승인 방식을 조정해야 합니다. 자동화는 사람의 merge 없이 초안을 공개하지 않습니다.
 
 ## 원고 기준
 
