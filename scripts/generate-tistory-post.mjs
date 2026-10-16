@@ -188,6 +188,47 @@ async function generate(source) {
 	throw lastError;
 }
 
+/**
+ * 티스토리 HTML 모드에 붙여넣을 조각. 에디터에서 서식(소제목·링크·코드)이 그대로 살아난다.
+ * 나중에 브라우저 자동화로 에디터에 주입할 때도 같은 HTML을 쓴다.
+ */
+function inlineHtml(text) {
+	return text
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+		.replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function toPasteHtml(post) {
+	const out = ['<p>' + inlineHtml(post.summary.trim()) + '</p>'];
+	let paragraph = [];
+	const flush = () => {
+		if (paragraph.length > 0) {
+			out.push('<p>' + inlineHtml(paragraph.join(' ')) + '</p>');
+			paragraph = [];
+		}
+	};
+	for (const rawLine of post.body.split(/\r?\n/)) {
+		const line = rawLine.trim();
+		if (!line) {
+			flush();
+			continue;
+		}
+		const heading = line.match(/^(#{2,3})\s+(.+)$/);
+		if (heading) {
+			flush();
+			const level = heading[1].length;
+			out.push('<h' + level + '>' + inlineHtml(heading[2]) + '</h' + level + '>');
+			continue;
+		}
+		paragraph.push(line);
+	}
+	flush();
+	return out.join('\n') + '\n';
+}
+
 function slugFromSourcePath(path) {
 	return basename(path).replace(/\.mdx?$/i, '').replace(/[^0-9A-Za-z._-]+/g, '-').slice(0, 60);
 }
@@ -288,11 +329,13 @@ async function main() {
 	await writeFile(outPath, output, 'utf8');
 	const textPath = outPath.replace(/\.md$/, '.txt');
 	await writeFile(textPath, toPasteText(post, originalUrl || sourcePath, today), 'utf8');
+	const htmlPath = outPath.replace(/\.md$/, '.html');
+	await writeFile(htmlPath, toPasteHtml(post), 'utf8');
 	const collector = process.env.GITHUB_OUTPUT;
 	if (collector) {
-		await (await import('node:fs/promises')).appendFile(collector, 'out_path=' + outPath + '\nout_text_path=' + textPath + '\n');
+		await (await import('node:fs/promises')).appendFile(collector, 'out_path=' + outPath + '\nout_text_path=' + textPath + '\nout_html_path=' + htmlPath + '\n');
 	}
-	console.log('티스토리 홍보글을 준비했습니다: ' + outPath + ' / 붙여넣기용: ' + textPath);
+	console.log('티스토리 홍보글을 준비했습니다: ' + outPath + ' / 붙여넣기용: ' + textPath + ' / HTML: ' + htmlPath);
 }
 
 main().catch((error) => {
