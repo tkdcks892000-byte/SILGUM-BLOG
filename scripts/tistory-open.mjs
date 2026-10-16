@@ -15,7 +15,7 @@
  */
 
 import { spawn } from 'node:child_process';
-import { readFile, readdir, writeFile, unlink } from 'node:fs/promises';
+import { readFile, readdir, stat, writeFile, unlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -36,9 +36,15 @@ function section(markdown, heading) {
 async function pickSourceFile(argument) {
 	if (argument && !argument.startsWith('--')) return resolve(argument);
 	const entries = await readdir(OUTBOX_DIR).catch(() => []);
-	const drafts = entries.filter((name) => name.endsWith('.md')).sort();
+	const drafts = entries.filter((name) => name.endsWith('.md'));
 	if (drafts.length === 0) throw new Error(OUTBOX_DIR + ' 에 홍보글이 없습니다. Tistory promo post workflow를 먼저 실행하세요.');
-	return join(OUTBOX_DIR, drafts.at(-1));
+	const stamped = await Promise.all(drafts.map(async (name) => {
+		const path = join(OUTBOX_DIR, name);
+		const info = await stat(path);
+		return { path, modified: info.mtimeMs };
+	}));
+	stamped.sort((a, b) => a.modified - b.modified);
+	return stamped.at(-1).path;
 }
 
 async function readBlogName() {
@@ -71,26 +77,67 @@ async function toClipboard(text, dryRun) {
  * HTML 서식으로 클립보드에 넣는다. 티스토리 기본 에디터에 붙여넣으면 소제목·링크가 서식으로 들어가서
  * HTML 모드로 바꾸는 단계를 건너뛸 수 있다.
  *
- * Windows 클립보드의 HTML 형식(CF_HTML)은 헤더에 바이트 오프셋을 요구한다. 그리고 텍스트 형식도 함께
- * 넣어야 한다 — 서식을 지원하지 않는 입력칸에 붙여넣어도 평문이 나오도록.
+ * 중요: Windows Forms의 DataObject로 'HTML Format'에 문자열을 넣으면 .NET이 시스템 ANSI 코드페이지
+ * (한국어 Windows에서는 CP949)로 기록한다. 브라우저는 CF_HTML을 UTF-8로 읽으므로 한글이 깨진다.
+ * 그래서 Win32 클립보드 API로 UTF-8 바이트를 그대로 넣는다. 평문 형식도 함께 넣어 서식을 지원하지
+ * 않는 입력칸에서도 내용이 나오게 한다.
  */
-const HTML_CLIPBOARD_SCRIPT = [
-	'$frag = [System.IO.File]::ReadAllText(\'{PATH}\', [System.Text.Encoding]::UTF8)',
-	"$html = '<html><body><!--StartFragment-->' + $frag + '<!--EndFragment--></body></html>'",
-	'$template = "Version:0.9`r`nStartHTML:{0:D10}`r`nEndHTML:{1:D10}`r`nStartFragment:{2:D10}`r`nEndFragment:{3:D10}`r`n"',
-	'$placeholder = $template -f 0,0,0,0',
-	'$headerLength = [System.Text.Encoding]::UTF8.GetByteCount($placeholder)',
-	'$startFragment = $headerLength + [System.Text.Encoding]::UTF8.GetByteCount("<html><body><!--StartFragment-->")',
-	'$startHtml = $headerLength',
-	'$endHtml = $headerLength + [System.Text.Encoding]::UTF8.GetByteCount($html)',
-	'$endFragment = $startFragment + [System.Text.Encoding]::UTF8.GetByteCount($frag)',
-	'$cfHtml = ($template -f $startHtml,$endHtml,$startFragment,$endFragment) + $html',
-	'Add-Type -AssemblyName System.Windows.Forms',
-	'$data = New-Object System.Windows.Forms.DataObject',
-	'$data.SetData([System.Windows.Forms.DataFormats]::UnicodeText, $frag)',
-	'$data.SetData([System.Windows.Forms.DataFormats]::Html, $cfHtml)',
-	'[System.Windows.Forms.Clipboard]::SetDataObject($data, $true)',
-].join('; ');
+const CLIPBOARD_HTML_SCRIPT = [
+	'param()',
+	'Add-Type -TypeDefinition @\'',
+	'using System;',
+	'using System.Runtime.InteropServices;',
+	'public class SilgumClip {',
+	'  [DllImport("user32.dll", SetLastError=true)] public static extern bool OpenClipboard(IntPtr h);',
+	'  [DllImport("user32.dll", SetLastError=true)] public static extern bool EmptyClipboard();',
+	'  [DllImport("user32.dll", SetLastError=true)] public static extern IntPtr SetClipboardData(uint f, IntPtr m);',
+	'  [DllImport("user32.dll", SetLastError=true)] public static extern bool CloseClipboard();',
+	'  [DllImport("user32.dll", SetLastError=true)] public static extern uint RegisterClipboardFormat(string n);',
+	'  [DllImport("kernel32.dll", SetLastError=true)] public static extern IntPtr GlobalAlloc(uint f, UIntPtr s);',
+	'  [DllImport("kernel32.dll", SetLastError=true)] public static extern IntPtr GlobalLock(IntPtr m);',
+	'  [DllImport("kernel32.dll", SetLastError=true)] public static extern bool GlobalUnlock(IntPtr m);',
+	'}',
+	'\'@',
+	'$GMEM_MOVEABLE = 0x0002',
+	'function Put([uint32]$format, [byte[]]$bytes) {',
+	'  $handle = [SilgumClip]::GlobalAlloc($GMEM_MOVEABLE, [UIntPtr]::new([uint64]$bytes.Length))',
+	'  if ($handle -eq [IntPtr]::Zero) { throw "GlobalAlloc failed" }',
+	'  $ptr = [SilgumClip]::GlobalLock($handle)',
+	'  [System.Runtime.InteropServices.Marshal]::Copy($bytes, 0, $ptr, $bytes.Length)',
+	'  [void][SilgumClip]::GlobalUnlock($handle)',
+	'  if ([SilgumClip]::SetClipboardData($format, $handle) -eq [IntPtr]::Zero) { throw "SetClipboardData failed" }',
+	'}',
+	'$htmlFormat = [SilgumClip]::RegisterClipboardFormat("HTML Format")',
+	'$htmlBytes = [System.IO.File]::ReadAllBytes($env:SILGUM_CLIP_HTML)',
+	'$text = [System.IO.File]::ReadAllText($env:SILGUM_CLIP_TEXT, [System.Text.Encoding]::UTF8)',
+	'$textBytes = [System.Text.Encoding]::Unicode.GetBytes($text + [char]0)',
+	'$htmlBytes = $htmlBytes + [byte]0',
+	'[void][SilgumClip]::OpenClipboard([IntPtr]::Zero)',
+	'try {',
+	'  [void][SilgumClip]::EmptyClipboard()',
+	'  Put $htmlFormat $htmlBytes',
+	'  Put 13 $textBytes',
+	'} finally { [void][SilgumClip]::CloseClipboard() }',
+].join('\n');
+
+function buildCfHtml(fragment) {
+	const open = '<html><body><!--StartFragment-->';
+	const close = '<!--EndFragment--></body></html>';
+	const html = open + fragment + close;
+	const template = 'Version:0.9\r\nStartHTML:{0}\r\nEndHTML:{1}\r\nStartFragment:{2}\r\nEndFragment:{3}\r\n';
+	// 거리 계산을 위해 자릿수가 같은 0 채움 헤더를 먼저 만든다.
+	const placeholder = template.replace(/\{0\}|\{1\}|\{2\}|\{3\}/g, '0000000000');
+	const startHtml = Buffer.byteLength(placeholder, 'utf8');
+	const startFragment = startHtml + Buffer.byteLength(open, 'utf8');
+	const endFragment = startFragment + Buffer.byteLength(fragment, 'utf8');
+	const endHtml = startHtml + Buffer.byteLength(html, 'utf8');
+	const pad = (value) => String(value).padStart(10, '0');
+	return template
+		.replace('{0}', pad(startHtml))
+		.replace('{1}', pad(endHtml))
+		.replace('{2}', pad(startFragment))
+		.replace('{3}', pad(endFragment)) + html;
+}
 
 async function toClipboardAsHtml(text, dryRun) {
 	if (dryRun) {
@@ -101,7 +148,27 @@ async function toClipboardAsHtml(text, dryRun) {
 		console.log('Windows가 아니면 HTML 클립보드를 지원하지 않습니다.');
 		return;
 	}
-	await runPowerShell(HTML_CLIPBOARD_SCRIPT, text);
+	const stamp = Date.now();
+	const htmlPath = join(tmpdir(), 'silgum-clip-html-' + stamp + '.bin');
+	const textPath = join(tmpdir(), 'silgum-clip-text-' + stamp + '.txt');
+	const scriptPath = join(tmpdir(), 'silgum-clip-' + stamp + '.ps1');
+	await writeFile(htmlPath, Buffer.from(buildCfHtml(text), 'utf8'));
+	await writeFile(textPath, text, 'utf8');
+	await writeFile(scriptPath, CLIPBOARD_HTML_SCRIPT, 'utf8');
+	try {
+		await new Promise((resolveDone, reject) => {
+			const child = spawn('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scriptPath], {
+				stdio: 'ignore',
+				env: { ...process.env, SILGUM_CLIP_HTML: htmlPath, SILGUM_CLIP_TEXT: textPath },
+			});
+			child.on('error', reject);
+			child.on('exit', (code) => (code === 0 ? resolveDone() : reject(new Error('HTML 클립보드 설정 실패 (종료 코드 ' + code + ')'))));
+		});
+	} finally {
+		await unlink(htmlPath).catch(() => {});
+		await unlink(textPath).catch(() => {});
+		await unlink(scriptPath).catch(() => {});
+	}
 }
 
 async function runPowerShell(commandTemplate, text) {
