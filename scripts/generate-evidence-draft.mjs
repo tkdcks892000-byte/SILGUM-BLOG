@@ -4,6 +4,9 @@ import { dirname, join, resolve } from 'node:path';
 import { getCheckpoint, githubRequest, updateCheckpoint } from './github-api.mjs';
 import { parseMarkers } from './markers.mjs';
 import { chatCompletion, resolveModels } from './openrouter.mjs';
+import { publicReferenceUrls, withChannelRef } from './silgum-links.mjs';
+
+const BLOG_REF = 'blog';
 
 const SOURCE_REPOSITORY = 'tkdcks892000-byte/SILGUM';
 const ALLOWED_SOURCE_FILES = [
@@ -17,11 +20,7 @@ const INITIAL_EVIDENCE_FILES = [
 	'app/terms/page.tsx',
 	'docs/COLD-START.md',
 ];
-const PUBLIC_REFERENCE_URLS = [
-	'https://silgum.co.kr/terms',
-	'https://silgum.co.kr/about',
-	'https://silgum.co.kr/tools',
-];
+const PUBLIC_REFERENCE_URLS = publicReferenceUrls(BLOG_REF);
 const MAX_EVIDENCE_CHARS = 55_000;
 const MAX_CURRENT_FILE_CHARS = 15_000;
 
@@ -90,6 +89,7 @@ function validateDraft(draft, changedPaths) {
 	if (!draft || typeof draft !== 'object' || draft.shouldDraft !== true) {
 		return { shouldDraft: false, reason: draft?.skipReason || '변경에서 독자에게 유용한 새 설명을 찾지 못했습니다.' };
 	}
+	draft.markdown = withChannelRef(draft.markdown, BLOG_REF);
 	if (typeof draft.title !== 'string' || draft.title.trim().length < 4 || draft.title.length > 100) {
 		throw new Error('Generated draft has an invalid title.');
 	}

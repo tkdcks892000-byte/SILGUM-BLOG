@@ -1,6 +1,9 @@
 import { execFileSync } from 'node:child_process';
 import { mkdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
+import { publicReferenceUrls, withChannelRef } from './silgum-links.mjs';
+
+const BLOG_REF = 'blog';
 
 const headRef = process.env.PULL_REQUEST_HEAD_REF || '';
 const match = headRef.match(/^automation\/evidence-draft-([0-9a-f]{12})$/);
@@ -51,7 +54,7 @@ function readJsonField(name) {
 const title = readJsonField('title');
 const description = readJsonField('description');
 const slug = readJsonField('slug');
-const markdown = frontmatter[2].trim();
+const markdown = withChannelRef(frontmatter[2].trim(), BLOG_REF);
 if (/\b(?:sk-(?:proj|svcacct)-|sk-[A-Za-z0-9]{32,}|gh[pousr]_|github_pat_)[A-Za-z0-9_-]{20,}\b/i.test(content)) {
 	throw new Error('Draft contains secret-shaped text.');
 }
@@ -74,11 +77,7 @@ if (/(?:저는|제가|저희가|내가|우리가|제 경험|혼자 (?:만들|개
 }
 if (/<[a-z][^>]*>/i.test(markdown)) throw new Error('Draft includes raw HTML.');
 
-const publicUrls = new Set([
-	'https://silgum.co.kr/terms',
-	'https://silgum.co.kr/about',
-	'https://silgum.co.kr/tools',
-]);
+const publicUrls = new Set(publicReferenceUrls(BLOG_REF));
 const urls = markdown.match(/https:\/\/[^\s)\]>"']+/g) || [];
 if (!urls.some((url) => publicUrls.has(url.replace(/[.,;]+$/, '')))) {
 	throw new Error('Draft does not cite an approved SILGUM page.');

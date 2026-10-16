@@ -12,9 +12,9 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import { parseMarkers } from './markers.mjs';
 import { chatCompletion, resolveModels } from './openrouter.mjs';
+import { PRODUCT_URL, withChannelRef } from './silgum-links.mjs';
 
 const TISTORY_REF = process.env.TISTORY_REF || 'blog_tistory';
-const PRODUCT_URL = 'https://silgum.co.kr';
 const MAX_ATTEMPTS = 3;
 
 const openAiApiKey = process.env.OPENAI_API_KEY;
@@ -127,13 +127,7 @@ const MARKERS = ['TITLE', 'SUMMARY', 'BODY', 'TAGS'];
 
 /** Any silgum.co.kr link in the body gets the tracking ref, whether the model added one or not. */
 function withTrackingRef(body) {
-	return body.replace(/https:\/\/silgum\.co\.kr(\/[^\s)\]>"']*)?/g, (match, path) => {
-		const cleanPath = (path || '/').replace(/[.,;]+$/, '');
-		const [base, query] = cleanPath.split('?');
-		const params = new URLSearchParams(query || '');
-		params.set('ref', TISTORY_REF);
-		return PRODUCT_URL + base + '?' + params.toString();
-	});
+	return withChannelRef(body, TISTORY_REF);
 }
 
 function normalizeTags(tags) {
