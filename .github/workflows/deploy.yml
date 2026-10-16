@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # A GITHUB_TOKEN push (the publish workflow promoting an approved draft) does not start other
+  # workflows, so the merge that publishes an article would otherwise not deploy. Run after it.
+  workflow_run:
+    workflows: ["Publish an approved content draft"]
+    types: [completed]
 
 permissions:
   contents: read
