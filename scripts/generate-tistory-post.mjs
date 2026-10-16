@@ -8,7 +8,8 @@
  * 무료 모델만 사용한다(기본 poolside/laguna-s-2.1:free, OpenRouter). 유료 모델은 계정 크레딧이 필요하다.
  */
 
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { parseMarkers } from './markers.mjs';
 import { chatCompletion, resolveModels } from './openrouter.mjs';
@@ -97,6 +98,7 @@ function buildPrompt(source, feedback) {
 		'Include exactly one markdown link to SILGUM using this URL: ' + PRODUCT_URL + '/?ref=' + TISTORY_REF,
 		originalUrl ? 'You may also link once to the original article: ' + originalUrl : '',
 		'Use no other URLs. Never output private GitHub links.',
+		'The product has two names: the Korean short name 실검 and the Latin SILGUM. Use both — put 실검 in the title or the opening paragraph, and mix the two names naturally in the body instead of repeating SILGUM every time.',
 		'Never write in the first person as the operator.',
 		'Return 3 to 10 Korean or English hashtag words (no # symbol, letters/digits/Korean only, 2-20 chars each).',
 		'Answer with the four marker lines below, in this exact order, and nothing before or after them.',
@@ -331,11 +333,21 @@ async function main() {
 	await writeFile(textPath, toPasteText(post, originalUrl || sourcePath, today), 'utf8');
 	const htmlPath = outPath.replace(/\.md$/, '.html');
 	await writeFile(htmlPath, toPasteHtml(post), 'utf8');
+	// 글의 대표 이미지(카드)가 있으면 함께 복사해 둔다. 티스토리 대표 이미지로 올리면 된다.
+	let imagePath = '';
+	const heroMatch = content.match(/^heroImage:\s*"?([^"\n]+)"?\s*$/m);
+	if (heroMatch) {
+		const cardSource = resolve(dirname(resolve(sourcePath)), heroMatch[1].trim());
+		if (existsSync(cardSource)) {
+			imagePath = outPath.replace(/\.md$/, '.png');
+			await copyFile(cardSource, imagePath);
+		}
+	}
 	const collector = process.env.GITHUB_OUTPUT;
 	if (collector) {
-		await (await import('node:fs/promises')).appendFile(collector, 'out_path=' + outPath + '\nout_text_path=' + textPath + '\nout_html_path=' + htmlPath + '\n');
+		await (await import('node:fs/promises')).appendFile(collector, 'out_path=' + outPath + '\nout_text_path=' + textPath + '\nout_html_path=' + htmlPath + '\nout_image_path=' + imagePath + '\n');
 	}
-	console.log('티스토리 홍보글을 준비했습니다: ' + outPath + ' / 붙여넣기용: ' + textPath + ' / HTML: ' + htmlPath);
+	console.log('티스토리 홍보글을 준비했습니다: ' + outPath + ' / 붙여넣기용: ' + textPath + ' / HTML: ' + htmlPath + (imagePath ? ' / 대표 이미지: ' + imagePath : ''));
 }
 
 main().catch((error) => {

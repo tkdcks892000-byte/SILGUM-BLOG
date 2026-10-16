@@ -173,6 +173,7 @@ async function generateDraft(evidence, existingDraftTitles, feedback) {
 		'If there is no useful, non-duplicative reader explanation, put "no" in DRAFT and explain briefly in SKIP_REASON. Otherwise put "yes" in DRAFT and fill the rest.',
 		'If a draft is justified, write 900 to 1,600 Korean characters in markdown in BODY, without an H1. Include 2 to 4 "## " section headings, a scope/limitations paragraph, and at least one supplied public SILGUM link.',
 		'Create a short, descriptive ASCII URL slug in lowercase English words separated by hyphens in SLUG. Do not add unrelated search keywords.',
+		'The product has two names: the Korean short name 실검 and the Latin SILGUM. Use both — put 실검 in the title or the opening paragraph, and mix the two names naturally in the body instead of repeating SILGUM every time.',
 		'Never write in the first person as the operator. SOURCE_FILES must contain only paths from changedPaths, comma separated.',
 		feedback ? 'The previous attempt was rejected. Fix exactly this problem: ' + feedback : '',
 		'',

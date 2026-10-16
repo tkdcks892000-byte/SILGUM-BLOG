@@ -1,7 +1,8 @@
 ---
-title: "SILGUM 실시간 트렌드 점수 산식과 공개 단계 정책"
+title: "실검(SILGUM) 실시간 트렌드 점수 산식과 공개 단계 정책"
 description: "SILGUM 실시간 트렌드 점수의 범주 비중과 coldstart·growth·mature 단계별 공개 기준을 설명한다."
 pubDate: "2026-10-16"
+heroImage: "../../assets/cards/silgum-trend-score-stages.png"
 ---
 
 ## 범주별 점수 구성

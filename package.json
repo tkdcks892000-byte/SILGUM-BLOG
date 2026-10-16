@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "tistory": "node scripts/generate-tistory-post.mjs",
     "tistory:open": "node scripts/tistory-open.mjs",
+    "card": "node scripts/make-card.mjs",
     "astro": "astro"
   },
   "dependencies": {
