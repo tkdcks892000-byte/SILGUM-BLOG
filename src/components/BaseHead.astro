@@ -12,6 +12,8 @@ interface Props {
 
 const { title, description, image } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+// 글에 카드가 있으면 그 카드를, 없으면(홈·소개 등) 블로그 기본 대표 이미지를 쓴다.
+const ogImage = image ? new URL(image.src, Astro.url) : new URL(withBase('og-default.png'), Astro.site);
 ---
 
 <meta charset="utf-8" />
@@ -32,5 +34,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <meta property="og:url" content={canonicalURL} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-{image && <meta property="og:image" content={new URL(image.src, Astro.url)} />}
-<meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content={ogImage} />

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#16314f"/>
+      <stop offset="60%" stop-color="#0d1930"/>
+      <stop offset="100%" stop-color="#0b1220"/>
+    </radialGradient>
+  </defs>
+  <rect width="1080" height="1080" fill="url(#glow)"/>
+  <g transform="translate(448 96) scale(1.1875)">
+    <rect width="64" height="64" rx="18" fill="#16745f"/>
+    <path d="M45 20c-3-3-7-5-13-5-9 0-15 5-15 12 0 6 4 9 13 11 6 1 8 2 8 4 0 2-2 3-6 3-5 0-9-2-12-5l-5 7c4 4 10 6 17 6 10 0 16-5 16-12 0-6-4-10-13-12-6-1-8-2-8-4 0-2 2-3 5-3 4 0 7 1 10 4z" fill="#fff"/>
+  </g>
+  <text x="546" y="146" font-family="Malgun Gothic, Noto Sans KR, Segoe UI, sans-serif" font-size="42" font-weight="700" fill="#e8eefc">실검</text>
+  <text x="546" y="146" font-family="Malgun Gothic, Noto Sans KR, Segoe UI, sans-serif" font-size="42" font-weight="700" fill="#6b82a6" dx="94">SILGUM</text>
+  <rect x="498" y="204" width="84" height="7" rx="3.5" fill="#16745f"/>
+  <text x="540" y="567" text-anchor="middle" font-family="Malgun Gothic, Noto Sans KR, Segoe UI, sans-serif" font-size="76" font-weight="700" fill="#e8eefc">실검(SILGUM) 소개</text>
+  <text x="540" y="730" text-anchor="middle" font-family="Malgun Gothic, Noto Sans KR, Segoe UI, sans-serif" font-size="26" fill="#9fb3d1">검색 허브가 하는 일과 하지 않는 일</text>
+  <text x="540" y="1008" text-anchor="middle" font-family="Malgun Gothic, Noto Sans KR, Segoe UI, sans-serif" font-size="24" fill="#6b82a6">검색 서비스를 골라 검색하는 검색 허브 · silgum.co.kr</text>
+</svg>

@@ -14,6 +14,7 @@ import sharp from 'sharp';
 
 const WIDTH = 1200;
 const HEIGHT = 630;
+const SQUARE = 1080;
 const INK = '#e8eefc';
 const MUTED = '#9fb3d1';
 const SOFT = '#6b82a6';
@@ -107,6 +108,48 @@ function buildSvg({ title, description }) {
 </svg>`;
 }
 
+/**
+ * 정사각형 카드. 티스토리 대표 이미지처럼 목록에서 잘려 보이는 자리에 쓴다.
+ * 중요한 요소(마크·제목)를 가운데에 두어 어느 비율로 잘려도 남는다.
+ */
+function buildSquareSvg({ title, description }) {
+	const inner = SQUARE - 160;
+	let size = 76;
+	let lines = [];
+	for (; size >= 34; size -= 2) {
+		lines = wrap(title, inner, size);
+		if (lines.length <= 4) break;
+	}
+	const lineHeight = Math.round(size * 1.3);
+	const block = lines.length * lineHeight;
+	const titleTop = Math.round((SQUARE - block) / 2) + size;
+	const titleSvg = lines
+		.map((line, index) => `<text x="${SQUARE / 2}" y="${titleTop + index * lineHeight}" text-anchor="middle" font-family="${TITLE_FONT}" font-size="${size}" font-weight="700" fill="${INK}">${escapeXml(line)}</text>`)
+		.join('\n  ');
+	const descLine = description ? wrap(description, inner, 26)[0] || '' : '';
+	const descSvg = descLine
+		? `<text x="${SQUARE / 2}" y="${titleTop + block + 64}" text-anchor="middle" font-family="${TITLE_FONT}" font-size="26" fill="${MUTED}">${escapeXml(descLine)}</text>`
+		: '';
+
+	return `<svg xmlns="http://www.w3.org/2000/svg" width="${SQUARE}" height="${SQUARE}" viewBox="0 0 ${SQUARE} ${SQUARE}">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#16314f"/>
+      <stop offset="60%" stop-color="#0d1930"/>
+      <stop offset="100%" stop-color="#0b1220"/>
+    </radialGradient>
+  </defs>
+  <rect width="${SQUARE}" height="${SQUARE}" fill="url(#glow)"/>
+  ${mark(SQUARE / 2 - 92, 96, 76)}
+  <text x="${SQUARE / 2 + 6}" y="146" font-family="${TITLE_FONT}" font-size="42" font-weight="700" fill="${INK}">실검</text>
+  <text x="${SQUARE / 2 + 6}" y="146" font-family="${TITLE_FONT}" font-size="42" font-weight="700" fill="${SOFT}" dx="94">SILGUM</text>
+  <rect x="${SQUARE / 2 - 42}" y="204" width="84" height="7" rx="3.5" fill="${ACCENT}"/>
+  ${titleSvg}
+  ${descSvg}
+  <text x="${SQUARE / 2}" y="${SQUARE - 72}" text-anchor="middle" font-family="${TITLE_FONT}" font-size="24" fill="${SOFT}">검색 서비스를 골라 검색하는 검색 허브 · silgum.co.kr</text>
+</svg>`;
+}
+
 function parseArgs(argv) {
 	const args = {};
 	for (let index = 0; index < argv.length; index += 1) {
@@ -129,14 +172,18 @@ async function main() {
 	const title = args.title;
 	const description = args.description || '';
 	const slug = args.slug;
+	const square = Boolean(args.square) || args.shape === 'square';
 	if (!title || !slug) throw new Error('--title 과 --slug 가 필요합니다.');
-	const outPath = resolve(args.out || join('src', 'assets', 'cards', slug + '.png'));
-	const svg = buildSvg({ title, description });
+	const defaultPath = join('src', 'assets', 'cards', slug + (square ? '-square' : '') + '.png');
+	const outPath = resolve(args.out || defaultPath);
+	const svg = square ? buildSquareSvg({ title, description }) : buildSvg({ title, description });
 	await mkdir(dirname(outPath), { recursive: true });
 	await writeFile(outPath.replace(/\.png$/, '.svg'), svg, 'utf8');
 	await sharp(Buffer.from(svg)).png().toFile(outPath);
-	console.log('대표 이미지: ' + outPath);
-	console.log('frontmatter: heroImage: "../../assets/cards/' + slug + '.png"');
+	console.log((square ? '정사각형 대표 이미지: ' : '대표 이미지: ') + outPath);
+	if (!args.out) {
+		console.log('frontmatter: heroImage: "../../assets/cards/' + slug + (square ? '-square' : '') + '.png"');
+	}
 }
 
 main().catch((error) => {

@@ -76,6 +76,13 @@ npm run card -- --slug my-post --title "실검(SILGUM) ..." --description "한 �
 heroImage: "../../assets/cards/my-post.png"
 ```
 
+- 홈·소개·목록처럼 글 카드가 없는 페이지는 `public/og-default.png`(블로그 기본 대표 이미지)를 OG 이미지로 씁니다.
+- 티스토리 대표 이미지처럼 목록에서 잘려 보이는 자리에는 `--square` 판(1080×1080)을 씁니다. 홍보글을 만들 때 정사각형 판이 있으면 그쪽을 `outbox/tistory/`로 복사합니다.
+
+```sh
+npm run card -- --slug my-post --square --title "실검(SILGUM) ..." --description "한 줄 요약"
+```
+
 티스토리 홍보글을 만들 때 같은 카드를 `outbox/tistory/`로 복사해 주므로, 티스토리 대표 이미지로 그대로 올리면 됩니다.
 
 ## 티스토리 홍보글 (반자동)

@@ -338,9 +338,12 @@ async function main() {
 	const heroMatch = content.match(/^heroImage:\s*"?([^"\n]+)"?\s*$/m);
 	if (heroMatch) {
 		const cardSource = resolve(dirname(resolve(sourcePath)), heroMatch[1].trim());
-		if (existsSync(cardSource)) {
+		// 티스토리 대표 이미지는 목록에서 잘려 보이므로 정사각형 판이 있으면 그쪽을 쓴다.
+		const squareSource = cardSource.replace(/\.png$/, '-square.png');
+		const chosen = existsSync(squareSource) ? squareSource : cardSource;
+		if (existsSync(chosen)) {
 			imagePath = outPath.replace(/\.md$/, '.png');
-			await copyFile(cardSource, imagePath);
+			await copyFile(chosen, imagePath);
 		}
 	}
 	const collector = process.env.GITHUB_OUTPUT;
