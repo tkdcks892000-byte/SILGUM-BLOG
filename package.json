@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "tistory": "node scripts/generate-tistory-post.mjs",
     "astro": "astro"
   },
   "dependencies": {

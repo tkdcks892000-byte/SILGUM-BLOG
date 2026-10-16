@@ -9,7 +9,7 @@ await updateCheckpoint({
 	sourceSha,
 	processedAt: new Date().toISOString(),
 	outcome: 'draft-pull-request-created',
-	model: process.env.OPENAI_MODEL || 'gpt-6-luna',
+	model: process.env.OPENAI_MODEL || 'poolside/laguna-s-2.1:free',
 });
 console.log('Recorded processed source commit ' + sourceSha + '.');
 

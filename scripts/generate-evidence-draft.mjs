@@ -25,7 +25,8 @@ const MAX_CURRENT_FILE_CHARS = 15_000;
 
 const githubRepository = process.env.GITHUB_REPOSITORY;
 const openAiApiKey = process.env.OPENAI_API_KEY;
-const openAiModel = process.env.OPENAI_MODEL || 'anthropic/claude-sonnet-4-6';
+const DEFAULT_OPENROUTER_MODEL = 'poolside/laguna-s-2.1:free';
+const openAiModel = process.env.OPENAI_MODEL || DEFAULT_OPENROUTER_MODEL;
 const sourceDirectory = resolve(process.env.SOURCE_DIRECTORY || 'source');
 
 function git(args) {
@@ -337,7 +338,7 @@ async function main() {
 		'## 생성 근거',
 		'',
 		'- 소스 저장소 커밋: ' + sourceSha,
-		'- 생성 모델: ' + openAiModel + ' (OpenRouter, store false)',
+		'- 생성 모델: ' + openAiModel + ' (OpenRouter)',
 		'- 허용 목록 파일의 현재 내용 또는 변경 diff만 비공개 저장소의 읽기 전용 토큰으로 확인했습니다. 원시 검색어·세션 ID·운영 리포트·DB는 입력하지 않았습니다.',
 		sourceLinks,
 		'',

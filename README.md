@@ -40,14 +40,14 @@ Cloudflare은 사용하지 않습니다. `automation-state` 브랜치는 배포 
 블로그 GitHub 저장소를 비공개로 만든 뒤 Settings → Secrets and variables → Actions에 다음을 등록합니다.
 
 - SILGUM_SOURCE_READ_TOKEN: fine-grained token. SILGUM 앱 저장소 하나만 지정하고 Contents: read 권한만 부여합니다.
-- OPENAI_API_KEY: 원고 생성에 쓰는 키. 현재 스크립트는 OpenRouter Anthropic 호환 엔드포인트를 사용하므로 OpenRouter 키를 등록합니다. (이름은 하네스 호환을 위해 OPENAI_API_KEY로 유지) 무료 모델을 쓰려면 OPENAI_MODEL에 `openrouter/<모델>:free` 형태로 지정합니다.
-- 선택 사항인 Actions variable OPENAI_MODEL: 기본값은 anthropic/claude-sonnet-4-6입니다. OpenRouter 무료 모델은 openrouter/poolside/laguna-s-2.1:free 등 `:free` 접미를 쓰면 됩니다.
+- OPENAI_API_KEY: 원고 생성에 쓰는 키. 현재 스크립트는 OpenRouter Anthropic 호환 엔드포인트를 사용하므로 OpenRouter 키를 등록합니다. (이름은 하네스 호환을 위해 OPENAI_API_KEY로 유지)
+- 선택 사항인 Actions variable OPENAI_MODEL: OpenRouter 모델 ID를 그대로 씁니다. 접두사 `openrouter/`는 붙이지 않습니다. 기본값은 무료 모델 `poolside/laguna-s-2.1:free`이고, `:free`가 없는 모델은 계정 크레딧이 필요합니다. 무료 모델 목록은 OpenRouter `/api/v1/models`에서 `:free` 접미사로 확인합니다. 무료 모델은 제공자 정책에 따라 가용성이 바뀔 수 있으므로 실패 시 ID를 다시 확인합니다.
 
 워크플로는 블로그 저장소의 기본 GITHUB_TOKEN에만 Contents: write와 Pull requests: write를 요청합니다. 앱 저장소 토큰은 checkout에서만 사용하고 Git 자격 증명으로 저장하지 않습니다. 별도 자동화 상태는 automation-state 브랜치의 state.json에 기록합니다. Actions 설정에서 workflow token에 read/write 권한이 허용되어야 합니다.
 
 선택 파일 내용은 초안 생성을 위해 OpenAI API에 전송됩니다. 요청에 store: false를 지정해 Responses API의 기본 애플리케이션 상태 저장을 끄지만, OpenAI의 오용 감시 로그는 별도 정책에 따라 최대 30일 보관될 수 있습니다. 더 엄격한 보존 조건이 필요하면 키를 등록하기 전에 조직의 데이터 제어 설정을 확인합니다. 자료 범위를 넓히기 전에 허용 목록과 개인정보 영향을 다시 검토합니다.
 
-스케줄 자동화는 계정의 Actions 정책과 secret 등록이 완료된 뒤에만 작동합니다. 현재는 원격 저장소와 secret이 설정되지 않아 API 호출·PR 생성·배포가 수행되지 않았습니다.
+원격 저장소와 Actions secret은 등록되어 있고, 첫 수동 실행은 모델 오류로 중단됐습니다. 기본 모델이 크레딧이 필요한 유료 ID로 넘어가면서 OpenRouter가 402(크레딧 없음)를 반환했습니다. 지금은 `:free` 모델을 기본값으로 두어 계정 크레딧 없이 실행되도록 했습니다.
 
 ### 승인 후 발행
 
@@ -58,5 +58,23 @@ Cloudflare은 사용하지 않습니다. `automation-state` 브랜치는 배포 
 - `src/content/blog/`에는 출처로 검증된 발행 가능 원고만 둡니다. 제품 코드·문서·변경 기록에서 확인할 수 없는 개인 경험은 채워 넣지 않습니다.
 - SILGUM 내부 검색 수와 외부 검색량을 구분합니다. 합산 트렌드 점수를 시장 검색량이라고 표현하지 않습니다.
 - 뉴스 본문이나 타인의 이미지·자료를 재배포하지 않고 출처와 원문 링크를 확인합니다.
-- SILGUM 링크의 글별 `ref`는 앱에서 허용되기 전까지 사용하지 않습니다. 현재 `blog_dev_01`은 `unknown`으로 기록됩니다.
+- SILGUM 링크에는 채널 `ref`를 붙입니다. 앱 허용 목록에 있는 값만 씁니다(현재 `blog`, `blog_tistory`). 허용 목록 밖 값(`blog_dev_01` 등)은 `unknown`으로 기록되므로 넣지 않습니다.
 - 공개는 자동 초안 생성만으로 이루어지지 않습니다. 사람이 검토 후 draft PR을 merge하면 재검증·승격·Pages 배포가 이어집니다.
+
+## 티스토리 홍보글 (반자동)
+
+티스토리 Open API가 종료되어 자동 게시는 하지 않습니다. 대신 발행된 블로그 글을 읽어 **붙여넣기용** 홍보글을 자동으로 만들고, 사람이 티스토리 에디터에 붙여 발행합니다.
+
+1. Actions 탭에서 **Tistory promo post (manual)** workflow를 수동 실행합니다.
+2. `source`에 원본 글 경로(예: `src/content/blog/my-post.md`)를, 필요하면 `original_url`에 원문 공개 URL을 넣습니다.
+3. `outbox/tistory/<날짜>-<slug>.md`가 저장소에 커밋되고 artifact로도 올라옵니다. 파일의 제목·본문·태그를 복사해 티스토리에 붙여넣고 발행합니다.
+4. 발행 후 그 파일의 "발행 후 기록"에 URL과 날짜를 적어 둡니다.
+
+로컬에서도 같은 스크립트를 씁니다.
+
+```sh
+# PowerShell: $env:SOURCE_PATH="src/content/blog/my-post.md"
+OPENAI_API_KEY=<OpenRouter 키> npm run tistory
+```
+
+생성에는 무료 모델(`poolside/laguna-s-2.1:free`)만 씁니다. 유료 모델은 계정 크레딧이 필요하므로 사용하지 않습니다. 무료 모델은 형식을 어길 때가 있어 스크립트가 최대 3회까지 교정 재요청합니다. 본문의 모든 `silgum.co.kr` 링크에는 `?ref=blog_tistory`가 자동으로 붙습니다.
