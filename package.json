@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "tistory": "node scripts/generate-tistory-post.mjs",
+    "tistory:open": "node scripts/tistory-open.mjs",
     "astro": "astro"
   },
   "dependencies": {

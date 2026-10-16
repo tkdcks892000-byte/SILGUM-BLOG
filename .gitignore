@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# local tistory helper config (personal blog name)
+tistory.config.json
+
 # macOS-specific files
 .DS_Store
 
