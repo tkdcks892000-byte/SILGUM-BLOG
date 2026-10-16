@@ -44,7 +44,7 @@ jobs:
         id: post
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'poolside/laguna-s-2.1:free' }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           SOURCE_PATH: ${{ inputs.source }}
           ORIGINAL_URL: ${{ inputs.original_url }}
         run: node scripts/generate-tistory-post.mjs

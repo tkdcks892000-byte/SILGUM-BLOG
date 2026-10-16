@@ -40,8 +40,8 @@ Cloudflare은 사용하지 않습니다. `automation-state` 브랜치는 배포 
 블로그 GitHub 저장소를 비공개로 만든 뒤 Settings → Secrets and variables → Actions에 다음을 등록합니다.
 
 - SILGUM_SOURCE_READ_TOKEN: fine-grained token. SILGUM 앱 저장소 하나만 지정하고 Contents: read 권한만 부여합니다.
-- OPENAI_API_KEY: 원고 생성에 쓰는 키. 현재 스크립트는 OpenRouter Anthropic 호환 엔드포인트를 사용하므로 OpenRouter 키를 등록합니다. (이름은 하네스 호환을 위해 OPENAI_API_KEY로 유지)
-- 선택 사항인 Actions variable OPENAI_MODEL: OpenRouter 모델 ID를 그대로 씁니다. 접두사 `openrouter/`는 붙이지 않습니다. 기본값은 무료 모델 `poolside/laguna-s-2.1:free`이고, `:free`가 없는 모델은 계정 크레딧이 필요합니다. 무료 모델 목록은 OpenRouter `/api/v1/models`에서 `:free` 접미사로 확인합니다. 무료 모델은 제공자 정책에 따라 가용성이 바뀔 수 있으므로 실패 시 ID를 다시 확인합니다.
+- OPENAI_API_KEY: 원고 생성에 쓰는 키. 현재 스크립트는 OpenRouter API를 쓰므로 OpenRouter 키를 등록합니다. (이름은 하네스 호환을 위해 OPENAI_API_KEY로 유지)
+- 선택 사항인 Actions variable OPENAI_MODEL: OpenRouter 모델 ID를 쉼표로 구분해 여러 개 넣을 수 있습니다. 접두사 `openrouter/`는 붙이지 않습니다. 비워 두면 스크립트의 무료 폴백 목록(`poolside/laguna-s-2.1:free`, `nvidia/nemotron-3-super-120b-a12b:free`, `dots-studio/dots-3-note-preview:free`)을 앞에서부터 시도합니다. 무료 티어는 제공자 공유 풀이라 특정 모델이 429를 돌려주면 다음 모델로 넘어갑니다. `:free`가 없는 모델은 계정 크레딧이 필요하므로 넣지 않습니다. 무료 모델 목록은 OpenRouter `/api/v1/models`에서 `:free` 접미사로 확인합니다.
 
 워크플로는 블로그 저장소의 기본 GITHUB_TOKEN에만 Contents: write와 Pull requests: write를 요청합니다. 앱 저장소 토큰은 checkout에서만 사용하고 Git 자격 증명으로 저장하지 않습니다. 별도 자동화 상태는 automation-state 브랜치의 state.json에 기록합니다. Actions 설정에서 workflow token에 read/write 권한이 허용되어야 합니다.
 
@@ -77,4 +77,4 @@ Cloudflare은 사용하지 않습니다. `automation-state` 브랜치는 배포 
 OPENAI_API_KEY=<OpenRouter 키> npm run tistory
 ```
 
-생성에는 무료 모델(`poolside/laguna-s-2.1:free`)만 씁니다. 유료 모델은 계정 크레딧이 필요하므로 사용하지 않습니다. 무료 모델은 형식을 어길 때가 있어 스크립트가 최대 3회까지 교정 재요청합니다. 본문의 모든 `silgum.co.kr` 링크에는 `?ref=blog_tistory`가 자동으로 붙습니다.
+생성에는 무료 모델만 씁니다. 유료 모델은 계정 크레딧이 필요하므로 사용하지 않습니다. 무료 티어는 공유 풀이라 특정 모델이 429를 돌려주면 다음 무료 모델로 넘어가고, 형식이 어긋나면 최대 3회까지 교정 재요청합니다. 본문의 모든 `silgum.co.kr` 링크에는 `?ref=blog_tistory`가 자동으로 붙습니다.

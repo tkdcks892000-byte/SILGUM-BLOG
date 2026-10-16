@@ -10,14 +10,15 @@
 
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
+import { parseMarkers } from './markers.mjs';
+import { chatCompletion, resolveModels } from './openrouter.mjs';
 
-const DEFAULT_OPENROUTER_MODEL = 'poolside/laguna-s-2.1:free';
 const TISTORY_REF = process.env.TISTORY_REF || 'blog_tistory';
 const PRODUCT_URL = 'https://silgum.co.kr';
 const MAX_ATTEMPTS = 3;
 
 const openAiApiKey = process.env.OPENAI_API_KEY;
-const openAiModel = process.env.OPENAI_MODEL || DEFAULT_OPENROUTER_MODEL;
+const modelList = resolveModels(process.env.OPENAI_MODEL);
 const sourcePath = process.env.SOURCE_PATH;
 const originalUrl = process.env.ORIGINAL_URL || '';
 
@@ -143,21 +144,10 @@ function normalizeTags(tags) {
 }
 
 function parseDelimited(text) {
-	const cleaned = text.replace(/^```[a-z]*\s*|\s*```$/g, '').trim();
-	const positions = MARKERS.map((marker) => ({ marker, index: cleaned.indexOf('===' + marker + '===') }));
-	const missing = positions.filter((item) => item.index === -1).map((item) => item.marker);
-	if (missing.includes('TITLE') || missing.includes('BODY') || missing.includes('TAGS')) {
-		throw new Error('필수 마커가 없습니다(' + missing.join(', ') + '). ===TITLE===, ===BODY===, ===TAGS=== 순서로 다시 출력하세요.');
-	}
-	const ordered = positions.filter((item) => item.index !== -1).sort((a, b) => a.index - b.index);
-	if (ordered.map((item) => item.marker).join(',') !== ordered.map((item) => item.marker).sort((a, b) => MARKERS.indexOf(a) - MARKERS.indexOf(b)).join(',')) {
-		throw new Error('마커 순서가 잘못되었습니다. TITLE, SUMMARY, BODY, TAGS 순서로 출력하세요.');
-	}
-	const values = {};
-	for (let i = 0; i < ordered.length; i += 1) {
-		const start = ordered[i].index + ('===' + ordered[i].marker + '===').length;
-		const end = i + 1 < ordered.length ? ordered[i + 1].index : cleaned.length;
-		values[ordered[i].marker] = cleaned.slice(start, end).trim();
+	const values = parseMarkers(text, MARKERS);
+	const missing = ['TITLE', 'BODY', 'TAGS'].filter((name) => !values[name]);
+	if (missing.length > 0) {
+		throw new Error('필수 값이 비었습니다(' + missing.join(', ') + '). ===TITLE===, ===BODY===, ===TAGS=== 순서로 다시 출력하세요.');
 	}
 	const body = values.BODY || '';
 	const summary = values.SUMMARY || body.split(/\n{2,}/).find((block) => block.trim() && !block.trim().startsWith('#'))?.trim() || '';
@@ -170,44 +160,31 @@ function parseDelimited(text) {
 }
 
 async function requestPost(source, feedback) {
-	const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-		method: 'POST',
-		headers: {
-			Authorization: 'Bearer ' + openAiApiKey,
-			'Content-Type': 'application/json',
-			'HTTP-Referer': 'https://github.com/' + (process.env.GITHUB_REPOSITORY || 'SILGUM-BLOG'),
-			'X-Title': 'SILGUM tistory promo post',
-		},
-		body: JSON.stringify({
-			model: openAiModel,
-			messages: [{ role: 'user', content: [{ type: 'text', text: buildPrompt(source, feedback) }] }],
-			max_tokens: 4_000,
-			temperature: 0.5,
-		}),
+	const messages = [{ role: 'user', content: [{ type: 'text', text: buildPrompt(source, feedback) }] }];
+	const { model, content } = await chatCompletion({
+		apiKey: openAiApiKey,
+		models: modelList,
+		messages,
+		maxTokens: 4_000,
+		temperature: 0.5,
+		referer: 'https://github.com/' + (process.env.GITHUB_REPOSITORY || 'SILGUM-BLOG'),
+		title: 'SILGUM tistory promo post',
 	});
-	if (!response.ok) {
-		const message = (await response.text()).slice(0, 500);
-		throw new Error('LLM API failed (' + response.status + '): ' + message);
-	}
-	const data = await response.json();
-	const output = data.choices?.[0]?.message?.content;
-	if (typeof output !== 'string' || !output.trim()) throw new Error('모델이 빈 응답을 반환했습니다.');
 	if (process.env.DEBUG_DUMP_DIR) {
 		await mkdir(process.env.DEBUG_DUMP_DIR, { recursive: true });
-		await writeFile(join(process.env.DEBUG_DUMP_DIR, 'attempt-' + Date.now() + '.txt'), output, 'utf8');
+		await writeFile(join(process.env.DEBUG_DUMP_DIR, 'attempt-' + Date.now() + '.txt'), content, 'utf8');
 	}
-	return parseDelimited(output);
+	return { post: parseDelimited(content), model };
 }
 
 async function generate(source) {
 	let feedback = '';
 	let lastError;
 	for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
-		let post;
 		try {
-			post = await requestPost(source, feedback);
-			validatePost(post);
-			return post;
+			const result = await requestPost(source, feedback);
+			validatePost(result.post);
+			return result;
 		} catch (error) {
 			lastError = error;
 			feedback = error instanceof Error ? error.message : String(error);
@@ -227,7 +204,7 @@ async function main() {
 	const content = await readFile(resolve(sourcePath), 'utf8');
 	if (containsSecretShapedText(content)) throw new Error('원본 글에 비밀값 형태의 문자열이 있습니다.');
 	const source = parseSource(content);
-	const post = await generate(source);
+	const { post, model: usedModel } = await generate(source);
 
 	const slug = slugFromSourcePath(sourcePath);
 	const dateParts = new Intl.DateTimeFormat('en-CA', {
@@ -241,7 +218,7 @@ async function main() {
 		'<!-- 티스토리 반자동 발행용. 아래 제목/본문/태그를 티스토리 에디터에 붙여넣으세요. 자동 게시하지 않습니다. -->',
 		'',
 		'- 원본 글: ' + (originalUrl || sourcePath),
-		'- 생성 모델: ' + openAiModel + ' (OpenRouter, 무료 모델)',
+		'- 생성 모델: ' + usedModel + ' (OpenRouter, 무료 모델)',
 		'- 생성일: ' + today,
 		'',
 		'## 복사할 제목',
