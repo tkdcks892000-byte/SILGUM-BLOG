@@ -52,10 +52,11 @@ jobs:
       - name: Commit the promo post to outbox
         env:
           OUT_PATH: ${{ steps.post.outputs.out_path }}
+          OUT_TEXT_PATH: ${{ steps.post.outputs.out_text_path }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- "$OUT_PATH"
+          git add -- "$OUT_PATH" "$OUT_TEXT_PATH"
           if git diff --cached --quiet; then
             echo "outbox already has this promo post; nothing to commit."
             exit 0
@@ -67,5 +68,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: tistory-promo-post
-          path: ${{ steps.post.outputs.out_path }}
+          path: |
+            ${{ steps.post.outputs.out_path }}
+            ${{ steps.post.outputs.out_text_path }}
           if-no-files-found: error

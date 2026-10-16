@@ -192,6 +192,54 @@ function slugFromSourcePath(path) {
 	return basename(path).replace(/\.mdx?$/i, '').replace(/[^0-9A-Za-z._-]+/g, '-').slice(0, 60);
 }
 
+/**
+ * 티스토리 에디터는 마크다운을 해석하지 않는다. 붙여넣기용 일반 텍스트를 함께 만든다:
+ * 코드 표시(`` ` ``)와 마크다운 링크를 벗겨내고 URL을 그대로 남긴다.
+ */
+function toPasteText(post, sourceRef, today) {
+	const plain = post.body
+		.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '$1\n$2')
+		.replace(/`([^`]+)`/g, '$1')
+		.replace(/^##\s+/gm, '■ ')
+		.replace(/^#\s+/gm, '■ ');
+	return [
+		'티스토리 홍보글 — 붙여넣기용 (일반 텍스트)',
+		'원본 글: ' + sourceRef,
+		'생성일: ' + today,
+		'',
+		'아래 "제목"을 티스토리 제목 칸에, "본문"을 본문 칸에, "태그"를 태그 칸에 각각 붙여넣으세요.',
+		'티스토리 에디터는 마크다운을 해석하지 않으므로 기호 없이 정리했습니다. 굵게/소제목은 에디터에서 직접 지정하세요.',
+		'',
+		'========================',
+		'제목',
+		'========================',
+		post.title.trim(),
+		'',
+		'',
+		'========================',
+		'본문',
+		'========================',
+		post.summary.trim(),
+		'',
+		plain,
+		'',
+		'',
+		'========================',
+		'태그',
+		'========================',
+		post.tags.join(', '),
+		'',
+		'',
+		'========================',
+		'발행 후 기록',
+		'========================',
+		'발행 URL:',
+		'발행일:',
+		'붙인 ref: ' + TISTORY_REF,
+		'',
+	].join('\n');
+}
+
 async function main() {
 	if (!openAiApiKey) throw new Error('OPENAI_API_KEY가 필요합니다.');
 	if (!sourcePath) throw new Error('SOURCE_PATH가 필요합니다.');
@@ -238,11 +286,13 @@ async function main() {
 	].join('\n');
 	await mkdir(dirname(outPath), { recursive: true });
 	await writeFile(outPath, output, 'utf8');
+	const textPath = outPath.replace(/\.md$/, '.txt');
+	await writeFile(textPath, toPasteText(post, originalUrl || sourcePath, today), 'utf8');
 	const collector = process.env.GITHUB_OUTPUT;
 	if (collector) {
-		await (await import('node:fs/promises')).appendFile(collector, 'out_path=' + outPath + '\n');
+		await (await import('node:fs/promises')).appendFile(collector, 'out_path=' + outPath + '\nout_text_path=' + textPath + '\n');
 	}
-	console.log('티스토리 홍보글을 준비했습니다: ' + outPath);
+	console.log('티스토리 홍보글을 준비했습니다: ' + outPath + ' / 붙여넣기용: ' + textPath);
 }
 
 main().catch((error) => {
