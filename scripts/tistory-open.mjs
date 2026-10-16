@@ -56,7 +56,18 @@ async function readBlogName() {
 
 async function ask(question) {
 	const rl = createInterface({ input: process.stdin, output: process.stdout });
-	return new Promise((resolveAnswer) => rl.question(question, (answer) => { rl.close(); resolveAnswer(answer.trim()); }));
+	return new Promise((resolveAnswer) => {
+		let settled = false;
+		const finish = (value) => {
+			if (settled) return;
+			settled = true;
+			rl.close();
+			resolveAnswer(value);
+		};
+		rl.question(question, (answer) => finish(answer.trim()));
+		// 자동 실행이나 파이프 입력에서는 EOF가 정상이다. 멈추지 말고 계속한다.
+		rl.on('close', () => finish(''));
+	});
 }
 
 /** Windows 클립보드는 코드페이지 문제로 파이프가 한글을 깨뜨린다. 파일로 넘겨 UTF-8로 읽힌다. */
