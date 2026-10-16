@@ -101,13 +101,25 @@ function openUrl(url, dryRun) {
 
 async function main() {
 	const dryRun = process.argv.includes('--dry-run');
-	const fileArgument = process.argv.slice(2).find((item) => !item.startsWith('--'));
+	const stepIndex = process.argv.indexOf('--step');
+	const step = stepIndex === -1 ? '' : (process.argv[stepIndex + 1] || '').toLowerCase();
+	const fileArgument = process.argv.slice(2).find((item) => !item.startsWith('--') && item !== step);
 	const sourcePath = await pickSourceFile(fileArgument);
 	const markdown = await readFile(sourcePath, 'utf8');
 	const htmlPath = sourcePath.replace(/\.md$/, '.html');
 	const bodyHtml = await readFile(htmlPath, 'utf8').catch(() => '');
 	const title = section(markdown, '## 복사할 제목');
 	const tags = section(markdown, '## 복사할 태그').replace(/#/g, '').split(/[\s,]+/).filter(Boolean).join(',');
+
+	// 붙여넣다가 클립보드가 바뀌었을 때 한 조각만 다시 넣는 경로.
+	if (step) {
+		const pieces = { title, body: bodyHtml, tags };
+		if (!(step in pieces)) throw new Error('--step 은 title, body, tags 중 하나여야 합니다.');
+		if (!pieces[step]) throw new Error(step + ' 내용이 비어 있습니다. (' + basename(sourcePath) + ')');
+		await toClipboard(pieces[step], dryRun);
+		if (!dryRun) console.log(step + ' 을(를) 클립보드에 넣었습니다. (' + pieces[step].length + '자)');
+		return;
+	}
 
 	console.log('홍보글: ' + basename(sourcePath));
 	console.log('제목  : ' + title);
