@@ -230,6 +230,7 @@ async function verifyDraft(evidence, draft) {
 		'You are a fact-checker for a Korean article about SILGUM.',
 		'Compare every factual claim in DRAFT against EVIDENCE. EVIDENCE is the only source of truth.',
 		'Flag any sentence that is not supported by EVIDENCE, contradicts it, or states a number, scope, or policy differently from EVIDENCE.',
+		'ISSUES must list only statements that are wrong or unsupported. Never list a statement you checked and found correct.',
 		'Return a corrected draft: remove or rewrite only the unsupported or wrong sentences. Never add new facts, numbers, or claims.',
 		'Keep the corrected BODY at 900 to 1,600 Korean characters in markdown, with 2 to 4 "## " section headings and no H1.',
 		'Use only the public SILGUM URLs present in EVIDENCE. Never output private GitHub links.',
