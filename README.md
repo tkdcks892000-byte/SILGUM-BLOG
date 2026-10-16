@@ -85,6 +85,14 @@ npm run card -- --slug my-post --square --title "실검(SILGUM) ..." --descripti
 
 티스토리 홍보글을 만들 때 같은 카드를 `outbox/tistory/`로 복사해 주므로, 티스토리 대표 이미지로 그대로 올리면 됩니다.
 
+## 검색엔진에 새 글 알리기 (IndexNow)
+
+발행으로 배포가 끝나면 `scripts/indexnow.mjs`가 그 커밋에서 바뀐 글 주소를 **Bing·Yandex·Naver·Seznam**에 알립니다. IndexNow는 무료 개방 프로토콜이고 심사가 없습니다. **Google은 참여하지 않으므로** Google 노출은 sitemap과 크롤링으로 이뤄집니다(`/sitemap-index.xml`).
+
+- 키는 `public/<32자리 hex>.txt`로 공개 서비스되는 값이라 secret이 필요 없습니다.
+- 사이트 주소가 아직 `blog.silgum.co.kr`에 연결되지 않으면 키 파일 소유권 확인이 안 되므로 **조용히 건너뜁니다.** 연결되면 다음 배포부터 자동으로 동작합니다.
+- 수동 실행: `node scripts/indexnow.mjs --changed` (또는 `--all`).
+
 ## 티스토리 홍보글 (반자동)
 
 티스토리 Open API가 종료되어 자동 게시는 하지 않습니다. 대신 발행된 블로그 글을 읽어 **붙여넣기용** 홍보글을 자동으로 만들고, 사람이 티스토리 에디터에 붙여 발행합니다.
