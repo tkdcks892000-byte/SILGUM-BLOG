@@ -54,22 +54,6 @@ async function readBlogName() {
 	return '';
 }
 
-async function ask(question) {
-	const rl = createInterface({ input: process.stdin, output: process.stdout });
-	return new Promise((resolveAnswer) => {
-		let settled = false;
-		const finish = (value) => {
-			if (settled) return;
-			settled = true;
-			rl.close();
-			resolveAnswer(value);
-		};
-		rl.question(question, (answer) => finish(answer.trim()));
-		// 자동 실행이나 파이프 입력에서는 EOF가 정상이다. 멈추지 말고 계속한다.
-		rl.on('close', () => finish(''));
-	});
-}
-
 /** Windows 클립보드는 코드페이지 문제로 파이프가 한글을 깨뜨린다. 파일로 넘겨 UTF-8로 읽힌다. */
 async function toClipboard(text, dryRun) {
 	if (dryRun) {
@@ -80,12 +64,54 @@ async function toClipboard(text, dryRun) {
 		console.log('Windows가 아니면 클립보드 자동 복사를 지원하지 않습니다. 파일에서 직접 복사하세요.');
 		return;
 	}
+	await runPowerShell("Set-Clipboard -Value ([System.IO.File]::ReadAllText('{PATH}', [System.Text.Encoding]::UTF8))", text);
+}
+
+/**
+ * HTML 서식으로 클립보드에 넣는다. 티스토리 기본 에디터에 붙여넣으면 소제목·링크가 서식으로 들어가서
+ * HTML 모드로 바꾸는 단계를 건너뛸 수 있다.
+ *
+ * Windows 클립보드의 HTML 형식(CF_HTML)은 헤더에 바이트 오프셋을 요구한다. 그리고 텍스트 형식도 함께
+ * 넣어야 한다 — 서식을 지원하지 않는 입력칸에 붙여넣어도 평문이 나오도록.
+ */
+const HTML_CLIPBOARD_SCRIPT = [
+	'$frag = [System.IO.File]::ReadAllText(\'{PATH}\', [System.Text.Encoding]::UTF8)',
+	"$html = '<html><body><!--StartFragment-->' + $frag + '<!--EndFragment--></body></html>'",
+	'$template = "Version:0.9`r`nStartHTML:{0:D10}`r`nEndHTML:{1:D10}`r`nStartFragment:{2:D10}`r`nEndFragment:{3:D10}`r`n"',
+	'$placeholder = $template -f 0,0,0,0',
+	'$headerLength = [System.Text.Encoding]::UTF8.GetByteCount($placeholder)',
+	'$startFragment = $headerLength + [System.Text.Encoding]::UTF8.GetByteCount("<html><body><!--StartFragment-->")',
+	'$startHtml = $headerLength',
+	'$endHtml = $headerLength + [System.Text.Encoding]::UTF8.GetByteCount($html)',
+	'$endFragment = $startFragment + [System.Text.Encoding]::UTF8.GetByteCount($frag)',
+	'$cfHtml = ($template -f $startHtml,$endHtml,$startFragment,$endFragment) + $html',
+	'Add-Type -AssemblyName System.Windows.Forms',
+	'$data = New-Object System.Windows.Forms.DataObject',
+	'$data.SetData([System.Windows.Forms.DataFormats]::UnicodeText, $frag)',
+	'$data.SetData([System.Windows.Forms.DataFormats]::Html, $cfHtml)',
+	'[System.Windows.Forms.Clipboard]::SetDataObject($data, $true)',
+].join('; ');
+
+async function toClipboardAsHtml(text, dryRun) {
+	if (dryRun) {
+		console.log('[dry-run] 클립보드(텍스트+HTML 서식)로 넣을 내용(' + text.length + '자)');
+		return;
+	}
+	if (process.platform !== 'win32') {
+		console.log('Windows가 아니면 HTML 클립보드를 지원하지 않습니다.');
+		return;
+	}
+	await runPowerShell(HTML_CLIPBOARD_SCRIPT, text);
+}
+
+async function runPowerShell(commandTemplate, text) {
 	const tempPath = join(tmpdir(), 'silgum-clipboard-' + Date.now() + '.txt');
 	await writeFile(tempPath, text, 'utf8');
+	const command = commandTemplate.replace('{PATH}', tempPath.replace(/'/g, "''"));
 	await new Promise((resolveDone, reject) => {
-		const child = spawn('powershell', ['-NoProfile', '-Command', "Set-Clipboard -Value ([System.IO.File]::ReadAllText('" + tempPath.replace(/'/g, "''") + "', [System.Text.Encoding]::UTF8))"], { stdio: 'ignore' });
+		const child = spawn('powershell', ['-NoProfile', '-Command', command], { stdio: 'ignore' });
 		child.on('error', reject);
-		child.on('exit', (code) => (code === 0 ? resolveDone() : reject(new Error('Set-Clipboard 종료 코드 ' + code))));
+		child.on('exit', (code) => (code === 0 ? resolveDone() : reject(new Error('클립보드 설정 실패 (종료 코드 ' + code + ')'))));
 	});
 	await unlink(tempPath).catch(() => {});
 }
@@ -111,9 +137,10 @@ async function main() {
 	const title = section(markdown, '## 복사할 제목');
 	const tags = section(markdown, '## 복사할 태그').replace(/#/g, '').split(/[\s,]+/).filter(Boolean).join(',');
 
+	const pieces = { title, body: bodyHtml, tags };
+
 	// 붙여넣다가 클립보드가 바뀌었을 때 한 조각만 다시 넣는 경로.
 	if (step) {
-		const pieces = { title, body: bodyHtml, tags };
 		if (!(step in pieces)) throw new Error('--step 은 title, body, tags 중 하나여야 합니다.');
 		if (!pieces[step]) throw new Error(step + ' 내용이 비어 있습니다. (' + basename(sourcePath) + ')');
 		await toClipboard(pieces[step], dryRun);
@@ -121,32 +148,45 @@ async function main() {
 		return;
 	}
 
+	const blog = await readBlogName();
+	if (!dryRun && blog && !process.argv.includes('--no-open')) {
+		openUrl('https://' + blog + '/manage/newpost/', false);
+		console.log('글쓰기 페이지를 열었습니다: https://' + blog + '/manage/newpost/\n');
+	}
+
+	// 기본은 메뉴 방식이다. Enter 순서에 기대지 않아서 클립보드가 엉키지 않는다.
+	const rl = createInterface({ input: process.stdin, output: process.stdout });
+	const inputLines = rl[Symbol.asyncIterator]();
+
 	console.log('홍보글: ' + basename(sourcePath));
 	console.log('제목  : ' + title);
 	console.log('태그  : ' + tags);
-	if (!bodyHtml) console.log('경고: 같은 이름의 .html이 없어 본문 자동 복사를 건너뜁니다.');
+	if (!bodyHtml) console.log('경고: 같은 이름의 .html이 없어 본문 복사를 건너뜁니다.');
 	console.log('');
+	console.log('  1 제목 복사          2 본문 복사(HTML 모드에 붙여넣기)');
+	console.log('  3 본문 복사(서식 유지, 기본 에디터에 붙여넣기)   4 태그 복사');
+	console.log('  5 글쓰기 페이지 열기   q 끝내기');
+	console.log('');
+	console.log('필요한 번호를 누르세요. 여러 번 눌러도 됩니다. 발행 버튼은 직접 누르세요.');
 
-	await toClipboard(title, dryRun);
-	console.log('1/3 제목을 클립보드에 넣었습니다.');
-
-	const blog = await readBlogName();
-	if (blog) {
-		openUrl('https://' + blog + '/manage/newpost/', dryRun);
-		console.log('2/3 글쓰기 페이지를 열었습니다. 제목 칸에 붙여넣고 Enter를 누르세요.');
-	} else {
-		console.log('2/3 TISTORY_BLOG가 없어 페이지를 열지 않았습니다. 티스토리 글쓰기 페이지를 직접 열고 제목을 붙여넣으세요.');
+	try {
+		for (;;) {
+			process.stdout.write('번호> ');
+			const next = await inputLines.next();
+			if (next.done) break;
+			const choice = String(next.value).trim();
+			if (choice === 'q' || choice === '') break;
+			if (choice === '1') { await toClipboard(title, dryRun); console.log('→ 제목 (' + title.length + '자)'); }
+			else if (choice === '2') { await toClipboard(bodyHtml, dryRun); console.log('→ 본문 ' + bodyHtml.length + '자. 에디터를 HTML 모드로 바꿔 붙여넣으세요.'); }
+			else if (choice === '3') { await toClipboardAsHtml(bodyHtml, dryRun); console.log('→ 본문(서식 유지) ' + bodyHtml.length + '자. 기본 에디터에 그냥 붙여넣어 보세요.'); }
+			else if (choice === '4') { await toClipboard(tags, dryRun); console.log('→ 태그'); }
+			else if (choice === '5') { openUrl('https://' + (blog || 'sil-gum') + '/manage/newpost/', dryRun); console.log('→ 글쓰기 페이지'); }
+			else console.log('1~5 또는 q 를 입력하세요.');
+		}
+	} finally {
+		rl.close();
 	}
-	await ask('준비되면 Enter… ');
 
-	if (bodyHtml) {
-		await toClipboard(bodyHtml, dryRun);
-		console.log('3/3 본문 HTML을 클립보드에 넣었습니다. 에디터를 HTML 모드로 바꿔 붙여넣으세요.');
-	}
-	await ask('붙여넣었으면 Enter… ');
-
-	await toClipboard(tags, dryRun);
-	console.log('태그를 클립보드에 넣었습니다. 태그 칸에 붙여넣고 발행하세요.');
 	console.log('');
 	console.log('발행 후 ' + basename(sourcePath) + ' 의 "발행 후 기록"에 URL과 날짜를 적어 두세요.');
 }
