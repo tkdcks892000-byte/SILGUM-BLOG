@@ -8,7 +8,7 @@
  * 사용: node scripts/check-images.mjs
  */
 
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const PNG_SIGNATURE = '89504e470d0a1a0a';

@@ -8,7 +8,7 @@
  * 사용: node scripts/render-cards.mjs
  */
 
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
 

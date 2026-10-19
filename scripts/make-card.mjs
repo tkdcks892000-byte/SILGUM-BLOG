@@ -21,7 +21,6 @@ const SQUARE = 1080;
 const INK = '#e8eefc';
 const MUTED = '#9fb3d1';
 const FAINT = '#7d93b3';
-const ACCENT = '#6ea8fe';
 const FONT = 'Noto Sans KR, Pretendard, Malgun Gothic, sans-serif';
 const ICON_DIR = join('assets', 'brand', 'services');
 const SERVICE_ICONS = ['google', 'naver', 'bing', 'daum', 'yahoo', 'namuwiki', 'zum', 'nate'];

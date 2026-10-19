@@ -17,8 +17,10 @@ npm run preview
 
 - Settings → Pages → Source: **GitHub Actions**
 - main push 또는 수동 실행으로 빌드·배포
-- Custom domain: `blog.silgum.co.kr` (Gabia DNS에 A 레코드 추가, 상세 값은 대시보드 안내 참조)
-- Enforce HTTPS: 도메인 확인 후 체크
+- Custom domain: `blog.silgum.co.kr` — **2026-10-19 연결 완료**
+  - Gabia DNS: `CNAME  blog → tkdcks892000-byte.github.io.` (끝점 주의. A 레코드가 아니다)
+  - Pages 설정: `PUT /repos/{owner}/{repo}/pages` body `{ "cname": "blog.silgum.co.kr", "https_enforced": true }`
+  - 인증서가 발급되기 전에 `https_enforced: true`를 함께 보내면 `404 The certificate does not exist yet`가 난다. 먼저 cname만 등록하고, HTTPS가 열린 뒤 강제 설정을 켠다.
 
 Cloudflare은 사용하지 않습니다. `automation-state` 브랜치는 배포 대상이 아닙니다. 콘텐츠 검토 PR preview는 원고를 발행하지 않으며, drafts/는 Astro 콘텐츠 컬렉션에 포함되지 않습니다.
 
