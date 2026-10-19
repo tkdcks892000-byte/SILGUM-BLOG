@@ -45,6 +45,6 @@ https://tkdcks892000-byte.github.io/SILGUM-BLOG/blog/silgum-live-trends-views-ac
 ========================
 발행 후 기록
 ========================
-발행 URL:
-발행일:
+발행 URL: https://sil-gum.tistory.com/3
+발행일: 2026-10-19
 붙인 ref: blog_tistory
