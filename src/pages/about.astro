@@ -35,7 +35,8 @@ import { SITE_DESCRIPTION, SITE_TITLE, SILGUM_URL } from '../consts';
 
 <style>
 	main {
-		max-width: 44rem;
+		/* 기록·홈과 같은 폭(전역 main의 68rem)을 쓰고, 글줄 길이만 문단에서 제한한다.
+		   좁은 max-width를 main에 주면 가운데로 밀려 다른 탭과 시작 위치가 어긋난다. */
 		padding-top: 2.5rem;
 		padding-bottom: 4rem;
 	}
@@ -51,6 +52,7 @@ import { SITE_DESCRIPTION, SITE_TITLE, SILGUM_URL } from '../consts';
 		letter-spacing: -0.04em;
 	}
 	p {
+		max-width: 44rem;
 		color: var(--muted);
 		font-size: 0.98rem;
 		line-height: 1.9;
