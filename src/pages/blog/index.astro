@@ -21,7 +21,7 @@ const posts = (await getCollection('blog')).sort(
 		<Header />
 		<main>
 			<p class="eyebrow">THE JOURNAL</p>
-			<h1>개발 기록</h1>
+			<h1>기록</h1>
 			{posts.length ? (
 				<ul>
 					{posts.map((post) => (
@@ -45,18 +45,18 @@ const posts = (await getCollection('blog')).sort(
 <style>
 	main {
 		min-height: 55vh;
-		padding-top: 4rem;
+		padding-top: 2.5rem;
 	}
 	.eyebrow {
 		color: var(--accent);
-		font-size: 0.75rem;
-		font-weight: 750;
-		letter-spacing: 0.12em;
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
 	}
 	h1 {
-		margin-bottom: 2rem;
-		font-size: clamp(2.25rem, 6vw, 3.5rem);
-		letter-spacing: -0.05em;
+		margin-bottom: 1.5rem;
+		font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+		letter-spacing: -0.04em;
 	}
 	ul {
 		margin: 0;
@@ -68,7 +68,7 @@ const posts = (await getCollection('blog')).sort(
 	}
 	li a {
 		display: block;
-		padding: 1.5rem 0;
+		padding: 1.1rem 0;
 		color: var(--ink);
 		text-decoration: none;
 	}
@@ -76,11 +76,12 @@ const posts = (await getCollection('blog')).sort(
 		color: var(--accent);
 	}
 	h2 {
-		margin: 0 0 0.5rem;
-		font-size: 1.35rem;
+		margin: 0 0 0.35rem;
+		font-size: 1.1rem;
 	}
 	li p,
 	.empty-state {
 		color: var(--muted);
+		font-size: 0.92rem;
 	}
 </style>

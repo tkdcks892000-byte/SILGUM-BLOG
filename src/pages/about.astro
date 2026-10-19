@@ -16,17 +16,17 @@ import { SITE_DESCRIPTION, SITE_TITLE, SILGUM_URL } from '../consts';
 			<p class="eyebrow">ABOUT THIS LOG</p>
 			<h1>무엇을 기록하나요?</h1>
 			<p>
-				SILGUM은 검색어를 입력하고 여러 검색 서비스 중 하나를 골라 결과 페이지로 이동하는 검색 허브입니다.
-				이 공간은 제품의 현재 기능, 데이터 해석 기준, 공개 가능한 변경 기록을 설명합니다.
+				실검(SILGUM)은 검색어를 입력하고 여러 검색 서비스 중 하나를 골라 결과 페이지로 이동하는 검색 허브입니다.
+				이 공간은 지금 되는 일, 이렇게 쓰면 좋은 방법, 숫자를 어떻게 읽어야 하는지를 설명합니다.
 			</p>
 			<p>
-				화면의 숫자는 SILGUM 안에서 관측한 검색 행동을 뜻합니다. 외부 검색 서비스 전체의 검색량과 혼동되지
+				화면의 숫자는 실검 안에서 관측한 검색 행동을 뜻합니다. 외부 검색 서비스 전체의 검색량과 혼동되지
 				않도록 맥락을 함께 적습니다. 글은 제품 코드·문서·변경 기록에 근거하며, 확인되지 않는 개인 경험이나
 				성과는 추측해서 쓰지 않습니다.
 			</p>
 			<p>
-				<a href={`${SILGUM_URL}/about`}>SILGUM 서비스 소개</a> ·
-				<a href={`${SILGUM_URL}/tools`}> 검색 도구 안내</a>
+				<a href={`${SILGUM_URL}/about`}>실검 서비스 소개</a> ·
+				<a href={`${SILGUM_URL}/tools`}>검색 도구 안내</a>
 			</p>
 		</main>
 		<Footer />
@@ -35,23 +35,24 @@ import { SITE_DESCRIPTION, SITE_TITLE, SILGUM_URL } from '../consts';
 
 <style>
 	main {
-		max-width: 46rem;
-		padding-top: 4rem;
-		padding-bottom: 6rem;
+		max-width: 44rem;
+		padding-top: 2.5rem;
+		padding-bottom: 4rem;
 	}
 	.eyebrow {
 		color: var(--accent);
-		font-size: 0.75rem;
-		font-weight: 750;
-		letter-spacing: 0.12em;
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
 	}
 	h1 {
-		margin-bottom: 1.5rem;
-		font-size: clamp(2.25rem, 6vw, 3.5rem);
-		letter-spacing: -0.05em;
+		margin-bottom: 1.1rem;
+		font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+		letter-spacing: -0.04em;
 	}
 	p {
 		color: var(--muted);
+		font-size: 0.98rem;
 		line-height: 1.9;
 	}
 	a {

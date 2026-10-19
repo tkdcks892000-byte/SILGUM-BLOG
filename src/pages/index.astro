@@ -21,12 +21,12 @@ const posts = (await getCollection('blog')).sort(
 		<main>
 			<section class="hero">
 				<p class="eyebrow">SILGUM PRODUCT NOTES</p>
-				<h1>SILGUM의 기능과<br />데이터 기준을 기록합니다.</h1>
+				<h1>실검의 기능과<br />데이터 기준을 기록합니다.</h1>
 				<p class="intro">
-					현재 기능, 데이터 범위, 공개 가능한 제품 변경을 코드와 문서에 근거해 설명합니다.
-					SILGUM 안에서 관측한 수치와 외부 자료의 단위를 구분해 씁니다.
+					지금 화면에서 실제로 되는 일과, 이렇게 쓰면 좋은 방법을 적습니다.
+					숫자가 실검 안에서 관측한 값인지 외부 자료인지도 구분해 설명합니다.
 				</p>
-				<a class="button" href={`${SILGUM_URL}/about`}>SILGUM 알아보기</a>
+				<a class="button" href={`${SILGUM_URL}/about`}>실검 알아보기</a>
 			</section>
 
 			<section class="recent" aria-labelledby="recent-heading">
@@ -63,54 +63,54 @@ const posts = (await getCollection('blog')).sort(
 
 <style>
 	main {
-		padding-top: clamp(3.5rem, 9vw, 7rem);
+		padding-top: clamp(2.25rem, 5vw, 3.25rem);
 	}
 	.hero {
-		max-width: 48rem;
-		padding-bottom: clamp(4rem, 9vw, 7rem);
+		max-width: 44rem;
+		padding-bottom: clamp(2rem, 4.5vw, 3rem);
 	}
 	.eyebrow {
-		margin: 0 0 0.75rem;
+		margin: 0 0 0.6rem;
 		color: var(--accent);
-		font-size: 0.75rem;
-		font-weight: 750;
-		letter-spacing: 0.12em;
+		font-size: 0.7rem;
+		font-weight: 700;
+		letter-spacing: 0.14em;
 	}
 	h1 {
 		margin: 0;
-		font-size: clamp(2.5rem, 7vw, 5rem);
-		letter-spacing: -0.06em;
+		font-size: clamp(1.75rem, 3.8vw, 2.6rem);
+		letter-spacing: -0.045em;
 	}
 	.intro {
-		max-width: 40rem;
-		margin: 1.5rem 0 2rem;
+		max-width: 38rem;
+		margin: 1.1rem 0 1.6rem;
 		color: var(--muted);
-		font-size: clamp(1.05rem, 2vw, 1.3rem);
-		line-height: 1.8;
+		font-size: clamp(0.95rem, 1.2vw, 1.02rem);
+		line-height: 1.85;
 	}
 	.button {
 		display: inline-block;
-		padding: 0.75rem 1.1rem;
+		padding: 0.55rem 0.95rem;
 		border-radius: 0.5rem;
 		background: var(--accent);
-		color: white;
-		font-size: 0.95rem;
+		color: #0b1220;
+		font-size: 0.88rem;
 		font-weight: 700;
 		text-decoration: none;
 	}
 	.button:hover {
 		background: var(--accent-hover);
-		color: white;
+		color: #0b1220;
 	}
 	.recent,
 	.series {
-		padding-block: 2.25rem;
+		padding-block: 1.75rem;
 		border-top: 1px solid var(--line);
 	}
 	.section-heading h2 {
-		margin: 0 0 1.25rem;
-		font-size: clamp(1.5rem, 3vw, 2rem);
-		letter-spacing: -0.035em;
+		margin: 0 0 0.9rem;
+		font-size: clamp(1.15rem, 1.8vw, 1.4rem);
+		letter-spacing: -0.03em;
 	}
 	.post-list,
 	.series ol {
@@ -127,7 +127,7 @@ const posts = (await getCollection('blog')).sort(
 		display: flex;
 		align-items: baseline;
 		gap: 1rem;
-		padding: 1rem 0;
+		padding: 0.8rem 0;
 		color: var(--ink);
 		text-decoration: none;
 	}
@@ -141,21 +141,21 @@ const posts = (await getCollection('blog')).sort(
 	.empty-state,
 	.site-note {
 		color: var(--muted);
-		font-size: 0.9rem;
+		font-size: 0.85rem;
 	}
 	.empty-state {
-		padding-block: 1rem;
+		padding-block: 0.8rem;
 	}
 	.episode {
 		color: var(--accent);
-		font-size: 0.8rem;
-		font-weight: 750;
+		font-size: 0.75rem;
+		font-weight: 700;
 		letter-spacing: 0.08em;
 		white-space: nowrap;
 	}
 	.site-note {
-		margin: 1rem 0 0;
-		padding-top: 1.25rem;
+		margin: 0.8rem 0 0;
+		padding-top: 1.1rem;
 		border-top: 1px solid var(--line);
 		line-height: 1.7;
 	}
@@ -166,7 +166,7 @@ const posts = (await getCollection('blog')).sort(
 		}
 		.post-list a {
 			flex-direction: column;
-			gap: 0.35rem;
+			gap: 0.3rem;
 		}
 	}
 </style>

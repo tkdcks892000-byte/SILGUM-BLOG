@@ -1,13 +1,25 @@
 :root {
-	color-scheme: light;
-	--ink: #19221f;
-	--muted: #64716c;
-	--line: #e0e7e3;
-	--surface: #fff;
-	--page: #fbfcfa;
-	--accent: #16745f;
-	--accent-hover: #105b4a;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+	color-scheme: dark;
+
+	/* 실검(app/globals.css)과 같은 값. 블로그가 제품의 일부로 보이도록 그대로 가져온다. */
+	--ink: #f4f7fb;
+	--ink-2: #d5dde8;
+	--muted: #97a3b4;
+	--faint: #8b97ab;
+	--line: #2a3444;
+	--line-strong: #3d4a5d;
+	--surface: #121926;
+	--surface-2: #1a2330;
+	--page: #080b11;
+	--accent: #6ea8fe;
+	--accent-hover: #9cc4ff;
+	--accent-soft: rgba(110, 168, 254, 0.1);
+	--shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 30px -16px rgba(0, 0, 0, 0.75),
+		inset 0 1px 0 rgba(255, 255, 255, 0.05);
+	--radius: 12px;
+
+	font-family: Pretendard, "Pretendard Variable", "Noto Sans KR", "Apple SD Gothic Neo", Inter,
+		-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 }
@@ -20,10 +32,15 @@
 
 body {
 	margin: 0;
-	background: var(--page);
+	/* 실검처럼 위에서 빛이 내려오는 바탕. */
+	background:
+		radial-gradient(1200px 620px at 50% -12%, rgba(110, 168, 254, 0.1), transparent 62%),
+		var(--page);
+	background-attachment: fixed;
 	color: var(--ink);
-	font-size: 17px;
-	line-height: 1.75;
+	font-size: 15px;
+	line-height: 1.8;
+	letter-spacing: -0.01em;
 }
 
 main {
@@ -41,7 +58,9 @@ p {
 h1,
 h2,
 h3 {
-	line-height: 1.25;
+	line-height: 1.3;
+	font-weight: 700;
+	letter-spacing: -0.03em;
 }
 
 a {
@@ -53,8 +72,64 @@ a:hover {
 }
 
 ::selection {
-	background: #d4eee4;
+	background: var(--accent-soft);
 	color: var(--ink);
+}
+
+/* 마크다운 본문에서 쓰는 요소들. 어두운 바탕에서 기본 브라우저 스타일이 튀지 않게 맞춘다. */
+code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.9em;
+	padding: 0.1em 0.36em;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	background: var(--surface-2);
+	color: var(--ink-2);
+}
+
+pre {
+	margin: 1.5rem 0;
+	padding: 1rem;
+	overflow-x: auto;
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	background: var(--surface-2);
+}
+
+pre code {
+	padding: 0;
+	border: 0;
+	background: none;
+}
+
+table {
+	width: 100%;
+	margin: 1.5rem 0;
+	border-collapse: collapse;
+	font-size: 0.92rem;
+}
+
+th,
+td {
+	padding: 0.5rem 0.6rem;
+	border-bottom: 1px solid var(--line);
+	text-align: left;
+}
+
+th {
+	color: var(--ink-2);
+	font-weight: 600;
+}
+
+hr {
+	margin: 2rem 0;
+	border: 0;
+	border-top: 1px solid var(--line);
+}
+
+img {
+	max-width: 100%;
+	height: auto;
 }
 
 .sr-only {

@@ -39,17 +39,17 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 
 <style>
 	main {
-		padding-top: 2.5rem;
-		padding-bottom: 5rem;
+		padding-top: 2rem;
+		padding-bottom: 4rem;
 	}
 	article {
-		max-width: 48rem;
+		max-width: 46rem;
 		margin-inline: auto;
 	}
 	.hero-image {
 		display: block;
 		width: 100%;
-		margin-bottom: 2rem;
+		margin-bottom: 1.5rem;
 		border-radius: 0.75rem;
 	}
 	.article-header {
@@ -63,24 +63,24 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		text-decoration: none;
 	}
 	.article-header h1 {
-		margin: 1rem 0;
-		font-size: clamp(2.1rem, 6vw, 3.75rem);
-		letter-spacing: -0.055em;
+		margin: 0.75rem 0;
+		font-size: clamp(1.55rem, 3.6vw, 2.3rem);
+		letter-spacing: -0.04em;
 	}
 	.description {
 		color: var(--muted);
-		font-size: 1.15rem;
+		font-size: 1rem;
 		line-height: 1.8;
 	}
 	.prose {
-		padding-top: 1.75rem;
+		padding-top: 1.5rem;
 		border-top: 1px solid var(--line);
-		font-size: 1.08rem;
+		font-size: 0.98rem;
 		line-height: 1.95;
 	}
 	.prose :global(h2) {
-		margin-top: 2.5rem;
-		font-size: 1.6rem;
+		margin-top: 2rem;
+		font-size: 1.3rem;
 	}
 	.prose :global(blockquote) {
 		margin: 1.5rem 0;
