@@ -34,6 +34,7 @@
 
 ## 발행 후 기록
 
-- 발행 URL:
-- 발행일:
+- 발행 URL: https://sil-gum.tistory.com/2
+- 발행일: 2026-10-16
 - 붙인 ref: blog_tistory
+- 비고: 대표 이미지로 정사각형 카드를 올렸다. 원문 링크는 github.io 주소를 썼는데, 커스텀 도메인 연결 후에는 `https://blog.silgum.co.kr/blog/silgum-introduction/` 로 바꾸는 편이 낫다(둘 다 열리지만 정본은 후자).

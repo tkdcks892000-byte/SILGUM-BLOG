@@ -44,6 +44,6 @@ https://tkdcks892000-byte.github.io/SILGUM-BLOG/blog/silgum-introduction/에서 
 ========================
 발행 후 기록
 ========================
-발행 URL:
-발행일:
+발행 URL: https://sil-gum.tistory.com/2
+발행일: 2026-10-16
 붙인 ref: blog_tistory
