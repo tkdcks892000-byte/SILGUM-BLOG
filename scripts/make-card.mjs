@@ -191,28 +191,29 @@ function layoutLeft({ title, description, icons }) {
 }
 
 function layoutCenter({ title, description, icons }) {
-	// 양옆을 넓게 쓴다. 가운데 정렬이되 줄이 짧아지지 않도록 최대 폭을 크게 잡는다.
-	const MAX = WIDTH - 160;
-	let titleSize = 58;
-	let lines = wrap(title, MAX, titleSize);
-	while (lines.length > 2 && titleSize > 40) {
-		titleSize -= 4;
-		lines = wrap(title, MAX, titleSize);
+	// 카드에는 글 제목 전체를 넣지 않는다. 짧은 헤드라인 한 줄로 여백을 넉넉히 둔다.
+	const M = 120;
+	const MAX = WIDTH - M * 2;
+	let size = 74;
+	let lines = wrap(title, MAX, size);
+	while ((lines.length > 1 || textWidth(lines[0] || '', size) > MAX) && size > 38) {
+		size -= 2;
+		lines = wrap(title, MAX, size);
 	}
-	const lineHeight = Math.round(titleSize * 1.32);
-	const titleTop = 300;
+	const lineHeight = Math.round(size * 1.28);
+	const titleTop = 312;
 	const titleSvg = lines
-		.map((line, index) => `<text x="${WIDTH / 2}" y="${titleTop + index * lineHeight}" text-anchor="middle" font-family="${FONT}" font-size="${titleSize}" font-weight="700" fill="${INK}">${escapeXml(line)}</text>`)
+		.map((line, index) => `<text x="${WIDTH / 2}" y="${titleTop + index * lineHeight}" text-anchor="middle" font-family="${FONT}" font-size="${size}" font-weight="700" fill="${INK}">${escapeXml(line)}</text>`)
 		.join('\n  ');
-	const descLine = description ? wrap(description, MAX, 23)[0] || '' : '';
+	const descLine = description ? wrap(description, WIDTH - 260, 23)[0] || '' : '';
 
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
   ${DEFS}
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#glow)"/>
-  ${wordmark(WIDTH / 2, 176, 60, { center: true })}
+  ${wordmark(WIDTH / 2, 168, 58, { center: true })}
   ${titleSvg}
-  ${descLine ? `<text x="${WIDTH / 2}" y="${titleTop + lines.length * lineHeight + 24}" text-anchor="middle" font-family="${FONT}" font-size="23" fill="${MUTED}">${escapeXml(descLine)}</text>` : ''}
-  ${iconRow(icons, WIDTH / 2, 556, 40, 12, 20)}
+  ${descLine ? `<text x="${WIDTH / 2}" y="${titleTop + lines.length * lineHeight + 34}" text-anchor="middle" font-family="${FONT}" font-size="23" fill="${MUTED}">${escapeXml(descLine)}</text>` : ''}
+  ${iconRow(icons, WIDTH / 2, 552, 40, 12, 20)}
 </svg>`;
 }
 
@@ -263,7 +264,8 @@ function parseArgs(argv) {
 
 async function main() {
 	const args = parseArgs(process.argv.slice(2));
-	const { title, slug } = args;
+	const slug = args.slug;
+	const title = args.title || args.headline;
 	const description = args.description || '';
 	const square = Boolean(args.square) || args.shape === 'square';
 	// 사이트 히어로와 같은 중앙 정렬이 기본. 왼쪽 정렬은 --layout left 로만.
@@ -273,7 +275,9 @@ async function main() {
 	const suffix = (square ? '-square' : '') + (layout === 'left' && !square ? '-left' : '');
 	const outPath = resolve(args.out || join('src', 'assets', 'cards', slug + suffix + '.png'));
 	const icons = await loadServiceIcons();
-	const svg = square ? layoutSquare({ title, description, icons }) : layout === 'center' ? layoutCenter({ title, description, icons }) : layoutLeft({ title, description, icons });
+	// 카드에는 짧은 헤드라인을 쓴다. --headline 이 없으면 제목에서 앞부분만 쓴다.
+	const headline = args.headline || String(title).split(/\s+[—–|:]\s+/)[0].trim();
+	const svg = square ? layoutSquare({ title: headline, description, icons }) : layout === 'center' ? layoutCenter({ title: headline, description, icons }) : layoutLeft({ title: headline, description, icons });
 
 	await mkdir(dirname(outPath), { recursive: true });
 	await writeFile(outPath.replace(/\.png$/, '.svg'), svg, 'utf8');
