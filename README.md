@@ -72,6 +72,8 @@ npm run card -- --slug my-post --title "실검(SILGUM) ..." --description "한 �
 
 **저장소에는 `.svg`만 커밋하고 `.png`는 커밋하지 않습니다.** 이 PC의 DRM이 PNG를 나중에 암호화해 버려서, 커밋된 PNG가 깨진 채 배포를 막는 일이 있었습니다(2026-10-19). 그래서 `.png`는 `prebuild`(=`scripts/render-cards.mjs`)가 SVG에서 매번 새로 만들고, `.gitignore`로 제외합니다.
 
+카드의 한글은 **폰트가 없으면 네모(두부)로 렌더링**됩니다. 배포 workflow는 Ubuntu 러너에 `fonts-noto-cjk`를 설치한 뒤 렌더링합니다. 로컬은 Windows의 Noto Sans KR / 맑은 고딕을 씁니다.
+
 ```yaml
 heroImage: "../../assets/cards/my-post.png"
 ```
