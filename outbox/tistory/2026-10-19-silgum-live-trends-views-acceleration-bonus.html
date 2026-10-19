@@ -1,0 +1,8 @@
+<p>실검(SILGUM) 실시간 트렌드 점수에 클릭(관심) 보너스와 가속도 보너스가 추가되었습니다. 이제 사용자의 클릭 행위와 이슈의 언급 속도 변화가 트렌드 순위에 반영됩니다.</p>
+<h2>클릭 보너스로 주목도를 정확히</h2>
+<p>실검의 실시간 트렌드 점수는 여러 데이터 소스의 신호를 종합해 현재 어떤 이슈가 주목받고 있는지를 보여줍니다. 이제 그 점수에 사용자가 실제로 클릭한 행위도 반영됩니다. 각 이슈의 순위에 클릭 보너스가 더해지며, 그날 해당 이슈를 선택한 서로 다른 브라우저 수에 비례해 <code>viewsWeight</code>(0.03)를 곱해 점수에 더합니다. 단, <code>viewsCap</code>(20회)까지 상한이 있어 극단적인 값이 순위를 왜곡하지 않습니다.</p>
+<h2>가속도 보너스로 유행의 흐름 포착</h2>
+<p>한 이슈가 여러 소스에서 동시에 언급되기 시작할 때, 그 증가 속도 자체도 중요한 신호입니다. 가속도 보너스는 최근 2시간의 언급 증가량에서 직전 2시간의 증가량을 뺀 값에 <code>accelerationWeight</code>(0.02)를 곱해 계산합니다. 상한은 <code>accelerationCap</code>(5)이며, 서로 다른 범주에서 함께 관측되어야 하고(<code>observedCategories &gt;= 2</code>) 차이가 양수일 때만 적용됩니다. 화면에는 표시되지 않고 순위에만 반영됩니다.</p>
+<h2>보너스의 범위와 제한</h2>
+<p>- 클릭 보너스는 <code>input.views</code>가 제공된 경우에만 기여하며, 없으면 영향이 없습니다. - 가속도 보너스는 <code>observedCategories &gt;= 2</code>이고 가속도가 양수일 때만 적용됩니다. - 두 보너스 모두 "참고 수준"으로 분류되며, 기본 카테고리 가중치(search 0.4, news 0.3 등)보다 낮은 영향을 미칩니다. - 커뮤니티 글 제목은 저장되거나 표시되지 않으며, 관련 검색어 후보 추출에만 사용됩니다.</p>
+<p>자세한 내용은 <a href="https://silgum.co.kr/?ref=blog_tistory" target="_blank" rel="noopener">실검 소개</a>와 <a href="https://tkdcks892000-byte.github.io/SILGUM-BLOG/blog/silgum-live-trends-views-acceleration-bonus/" target="_blank" rel="noopener">원문 기사</a>를 참고하세요.</p>
