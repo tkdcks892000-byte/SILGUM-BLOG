@@ -54,6 +54,8 @@ function readJsonField(name) {
 const title = readJsonField('title');
 const description = readJsonField('description');
 const slug = readJsonField('slug');
+// heroImage는 있어도 되고 없어도 된다. 있으면 그대로 승격해 글 상단 이미지·OG 이미지로 쓴다.
+const heroImageLine = frontmatter[1].split(/\r?\n/).find((item) => item.startsWith('heroImage: '));
 const markdown = withChannelRef(frontmatter[2].trim(), BLOG_REF);
 if (/\b(?:sk-(?:proj|svcacct)-|sk-[A-Za-z0-9]{32,}|gh[pousr]_|github_pat_)[A-Za-z0-9_-]{20,}\b/i.test(content)) {
 	throw new Error('Draft contains secret-shaped text.');
@@ -105,6 +107,7 @@ const publishedContent = [
 	'title: ' + JSON.stringify(title.trim()),
 	'description: ' + JSON.stringify(description.trim()),
 	'pubDate: ' + JSON.stringify(pubDate),
+	...(heroImageLine ? [heroImageLine] : []),
 	'---',
 	'',
 	markdown,
