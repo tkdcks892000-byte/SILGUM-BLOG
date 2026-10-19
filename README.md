@@ -64,24 +64,31 @@ Cloudflare은 사용하지 않습니다. `automation-state` 브랜치는 배포 
 
 ## 대표 이미지 (카드)
 
-글마다 1200×630 카드를 만들어 `src/assets/cards/`에 둡니다. 실검 마크·글 제목·요약·제품 한 줄 소개가 들어갑니다.
+글마다 1200×630 카드를 만들어 `src/assets/cards/`에 둡니다. 실검 마크·글 제목·요약·지원 검색 서비스 로고가 들어갑니다.
 
 ```sh
 npm run card -- --slug my-post --title "실검(SILGUM) ..." --description "한 줄 요약"
 ```
 
-생성된 파일을 글 frontmatter의 `heroImage`로 참조하면 글 상단 이미지와 OG 이미지로 함께 쓰입니다.
+**저장소에는 `.svg`만 커밋하고 `.png`는 커밋하지 않습니다.** 이 PC의 DRM이 PNG를 나중에 암호화해 버려서, 커밋된 PNG가 깨진 채 배포를 막는 일이 있었습니다(2026-10-19). 그래서 `.png`는 `prebuild`(=`scripts/render-cards.mjs`)가 SVG에서 매번 새로 만들고, `.gitignore`로 제외합니다.
 
 ```yaml
 heroImage: "../../assets/cards/my-post.png"
 ```
 
-- 홈·소개·목록처럼 글 카드가 없는 페이지는 `public/og-default.png`(블로그 기본 대표 이미지)를 OG 이미지로 씁니다.
-- 티스토리 대표 이미지처럼 목록에서 잘려 보이는 자리에는 `--square` 판(1080×1080)을 씁니다. 홍보글을 만들 때 정사각형 판이 있으면 그쪽을 `outbox/tistory/`로 복사합니다.
+- 홈·소개·목록처럼 글 카드가 없는 페이지는 `public/og-default.svg`에서 렌더링한 `og-default.png`를 OG 이미지로 씁니다.
+- 티스토리 대표 이미지처럼 목록에서 잘려 보이는 자리에는 `--square` 판(1080×1080)을 씁니다. 홍보글을 만들 때 정사각형 판이 있으면 그쪽을 `outbox/tistory/`로 복사합니다(이 PNG도 커밋하지 않습니다).
 
 ```sh
 npm run card -- --slug my-post --square --title "실검(SILGUM) ..." --description "한 줄 요약"
 ```
+
+## 글의 독자와 주제
+
+- 독자는 **실검을 처음 보는 일반 사용자**입니다. 코드·설정·가중치·산식·API는 관심이 없습니다.
+- **웹사이트에서 실제로 보이는 기능**과 **이렇게 쓰면 좋다**는 활용법을 씁니다.
+- 데이터가 부족한 초기 상황은 이렇게만: "검색 데이터가 아직 충분하지 않아 여러 공개 트렌드 소스를 함께 참고해 목록을 만든다".
+- 본문에 `app/lib/…`, `viewsWeight`, `search_events`, `/api/…` 같은 내부 식별자가 나오면 자동 검증에서 거절합니다(두 생성기 모두).
 
 티스토리 홍보글을 만들 때 같은 카드를 `outbox/tistory/`로 복사해 주므로, 티스토리 대표 이미지로 그대로 올리면 됩니다.
 

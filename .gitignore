@@ -25,3 +25,8 @@ tistory.config.json
 
 # jetbrains setting folder
 .idea/
+
+# generated card PNGs (source of truth is the .svg; DRM on some machines encrypts PNGs)
+src/assets/cards/*.png
+public/og-default.png
+outbox/tistory/*.png

@@ -13,7 +13,10 @@
     "tistory:open": "node scripts/tistory-open.mjs",
     "card": "node scripts/make-card.mjs",
     "astro": "astro",
-    "check:images": "node scripts/check-images.mjs"
+    "check:images": "node scripts/check-images.mjs",
+    "prebuild": "node scripts/render-cards.mjs",
+    "predev": "node scripts/render-cards.mjs",
+    "cards:render": "node scripts/render-cards.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.3",

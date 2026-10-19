@@ -114,6 +114,10 @@ function validateDraft(draft, changedPaths) {
 	if (/(?:저는|제가|저희가|내가|우리가|제 경험|혼자 (?:만들|개발)|직접 (?:개발|구현|작성)|실제로 겪)/.test(draft.markdown)) {
 		throw new Error('Generated draft contains unsupported first-person experience.');
 	}
+	// 독자는 내부 구현을 궁금해하지 않는다. 코드·설정·산식이 본문에 나오면 되돌린다.
+	if (/(?:app\/lib\/|\.tsx?\b|viewsWeight|accelerationWeight|observedCategories|external_seed_scores|search_events|input\.views|score\.ts|config\.ts|\/api\/)/.test(draft.markdown)) {
+		throw new Error('Draft mentions implementation detail (file, identifier, formula or endpoint). Describe what the reader sees instead.');
+	}
 	if (/<[a-z][^>]*>/i.test(draft.markdown)) {
 		throw new Error('Generated draft contains raw HTML.');
 	}
@@ -170,6 +174,12 @@ async function generateDraft(evidence, existingDraftTitles, feedback) {
 		'Distinguish SILGUM internal observations from external search-provider data. Omit uncertain facts or label the uncertainty clearly.',
 		'Do not copy or paraphrase unrelated articles, repeat keywords, create SEO filler, or promise traffic or search rankings.',
 		'Use only public SILGUM reference URLs supplied in the evidence. Never output private GitHub links in the article.',
+		'',
+		'WHO READS THIS: a general Korean reader who has never used 실검 and does not know how it is built. They do not care about code, configuration, weights, formulas or internal design.',
+		'WHAT TO WRITE: explain what the product does today and how a reader would use it, with concrete situations. If the data situation matters, say it plainly: early on there is not enough search data, so several public trend sources are combined to build the list.',
+		'NEVER include: source-code file names or paths, function or variable names, weight/coefficient numbers, formulas, API endpoints, database table names, or other implementation detail. Do not explain how the score is calculated. Describe the visible behaviour instead.',
+		'Prefer short, concrete sentences a non-engineer can follow. No jargon, no code blocks.',
+		'',
 		'If there is no useful, non-duplicative reader explanation, put "no" in DRAFT and explain briefly in SKIP_REASON. Otherwise put "yes" in DRAFT and fill the rest.',
 		'If a draft is justified, write 900 to 1,600 Korean characters in markdown in BODY, without an H1. Include 2 to 4 "## " section headings, a scope/limitations paragraph, and at least one supplied public SILGUM link.',
 		'Create a short, descriptive ASCII URL slug in lowercase English words separated by hyphens in SLUG. Do not add unrelated search keywords.',

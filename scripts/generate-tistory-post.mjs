@@ -67,6 +67,9 @@ function validatePost(post) {
 	if (/(?:저는|제가|저희가|내가|우리가|제 경험|혼자 (?:만들|개발)|직접 (?:개발|구현|작성)|실제로 겪)/.test(post.body)) {
 		throw new Error('운영자 1인칭 경험 표현이 들어 있습니다.');
 	}
+	if (/(?:app\/lib\/|\.tsx?\b|viewsWeight|accelerationWeight|observedCategories|external_seed_scores|search_events|input\.views|score\.ts|config\.ts|\/api\/)/.test(post.body)) {
+		throw new Error('본문에 내부 구현(파일·식별자·산식·엔드포인트)이 들어 있습니다. 독자가 보는 동작으로 바꿔 쓰세요.');
+	}
 	const urls = post.body.match(/https:\/\/[^\s)\]>"']+/g) || [];
 	if (urls.length === 0) throw new Error('SILGUM 링크가 하나도 없습니다.');
 	for (const rawUrl of urls) {
@@ -99,6 +102,8 @@ function buildPrompt(source, feedback) {
 		originalUrl ? 'You may also link once to the original article: ' + originalUrl : '',
 		'Use no other URLs. Never output private GitHub links.',
 		'The product has two names: the Korean short name 실검 and the Latin SILGUM. Use both — put 실검 in the title or the opening paragraph, and mix the two names naturally in the body instead of repeating SILGUM every time.',
+		'Readers are ordinary Korean users, not engineers. Keep code file names, function or variable names, weight or coefficient numbers, formulas, API endpoints and database table names out of the post. If the source explains implementation detail, replace it with what the user actually sees and can do.',
+		'If it helps, add one concrete usage situation ("이럴 때 이렇게 써 보세요"). If the source mentions that early data is thin, say it simply: 검색 데이터가 아직 충분하지 않아 여러 공개 트렌드 소스를 함께 참고한다.',
 		'Never write in the first person as the operator.',
 		'Return 3 to 10 Korean or English hashtag words (no # symbol, letters/digits/Korean only, 2-20 chars each).',
 		'Answer with the four marker lines below, in this exact order, and nothing before or after them.',
