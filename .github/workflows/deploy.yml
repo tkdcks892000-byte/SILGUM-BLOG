@@ -37,6 +37,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # 이 PC의 DRM이 PNG를 암호화한 채 커밋되면 Astro가 알기 어려운 메시지로 죽는다. 먼저 잡는다.
+      - name: Check image files
+        run: node scripts/check-images.mjs
+
       - name: Build the site
         run: npm run build
 
