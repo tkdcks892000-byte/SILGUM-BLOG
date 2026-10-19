@@ -191,37 +191,46 @@ function layoutLeft({ title, description, icons }) {
 }
 
 function layoutCenter({ title, description, icons }) {
-	const titleSize = 52;
-	const lines = balancedWrap(title, WIDTH - 200, titleSize, 2);
-	const lineHeight = Math.round(titleSize * 1.36);
+	// 양옆을 넓게 쓴다. 가운데 정렬이되 줄이 짧아지지 않도록 최대 폭을 크게 잡는다.
+	const MAX = WIDTH - 160;
+	let titleSize = 58;
+	let lines = wrap(title, MAX, titleSize);
+	while (lines.length > 2 && titleSize > 40) {
+		titleSize -= 4;
+		lines = wrap(title, MAX, titleSize);
+	}
+	const lineHeight = Math.round(titleSize * 1.32);
 	const titleTop = 300;
 	const titleSvg = lines
 		.map((line, index) => `<text x="${WIDTH / 2}" y="${titleTop + index * lineHeight}" text-anchor="middle" font-family="${FONT}" font-size="${titleSize}" font-weight="700" fill="${INK}">${escapeXml(line)}</text>`)
 		.join('\n  ');
-	const descLine = description ? balancedWrap(description, WIDTH - 260, 24, 1)[0] || '' : '';
+	const descLine = description ? wrap(description, MAX, 23)[0] || '' : '';
 
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
   ${DEFS}
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#glow)"/>
-  ${wordmark(WIDTH / 2, 168, 62, { center: true })}
-  <text x="${WIDTH / 2}" y="240" text-anchor="middle" font-family="${FONT}" font-size="23" fill="${MUTED}">검색 서비스를 골라 검색하는 검색 허브</text>
+  ${wordmark(WIDTH / 2, 176, 60, { center: true })}
   ${titleSvg}
-  ${descLine ? `<text x="${WIDTH / 2}" y="${titleTop + lines.length * lineHeight + 26}" text-anchor="middle" font-family="${FONT}" font-size="23" fill="${MUTED}">${escapeXml(descLine)}</text>` : ''}
-  ${iconRow(icons, WIDTH / 2, 566, 42, 12, 22)}
+  ${descLine ? `<text x="${WIDTH / 2}" y="${titleTop + lines.length * lineHeight + 24}" text-anchor="middle" font-family="${FONT}" font-size="23" fill="${MUTED}">${escapeXml(descLine)}</text>` : ''}
+  ${iconRow(icons, WIDTH / 2, 556, 40, 12, 20)}
 </svg>`;
 }
 
 function layoutSquare({ title, description, icons }) {
-	const inner = SQUARE - 180;
-	const titleSize = 56;
-	const lines = balancedWrap(title, inner, titleSize, 3);
-	const lineHeight = Math.round(titleSize * 1.34);
+	const inner = SQUARE - 160;
+	let titleSize = 62;
+	let lines = wrap(title, inner, titleSize);
+	while (lines.length > 3 && titleSize > 40) {
+		titleSize -= 4;
+		lines = wrap(title, inner, titleSize);
+	}
+	const lineHeight = Math.round(titleSize * 1.32);
 	const block = lines.length * lineHeight;
-	const titleTop = Math.round((SQUARE - block) / 2) + titleSize - 30;
+	const titleTop = Math.round((SQUARE - block) / 2) + titleSize - 24;
 	const titleSvg = lines
 		.map((line, index) => `<text x="${SQUARE / 2}" y="${titleTop + index * lineHeight}" text-anchor="middle" font-family="${FONT}" font-size="${titleSize}" font-weight="700" fill="${INK}">${escapeXml(line)}</text>`)
 		.join('\n  ');
-	const descLine = description ? balancedWrap(description, inner, 24, 1)[0] || '' : '';
+	const descLine = description ? wrap(description, inner, 24)[0] || '' : '';
 
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${SQUARE}" height="${SQUARE}" viewBox="0 0 ${SQUARE} ${SQUARE}">
   ${DEFS}
