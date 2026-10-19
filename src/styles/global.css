@@ -41,6 +41,9 @@ body {
 	font-size: 15px;
 	line-height: 1.8;
 	letter-spacing: -0.01em;
+	/* 한국어는 어절 중간에서 끊지 않는다("공개 단/계 정책" 방지). 긴 URL·코드는 예외. */
+	word-break: keep-all;
+	overflow-wrap: break-word;
 }
 
 main {
@@ -85,6 +88,7 @@ code {
 	border-radius: 6px;
 	background: var(--surface-2);
 	color: var(--ink-2);
+	word-break: break-all;
 }
 
 pre {
