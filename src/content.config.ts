@@ -14,6 +14,8 @@ const blog = defineCollection({
 			pubDate: z.coerce.date(),
 			updatedDate: z.coerce.date().optional(),
 			heroImage: z.optional(image()),
+			// 목록 맨 위에 고정할 글. 날짜를 조작하지 않고 순서만 정한다.
+			pinned: z.boolean().optional(),
 		}),
 });
 

@@ -2,6 +2,7 @@
 title: "실검(SILGUM) 소개 — 검색 허브가 하는 일과 하지 않는 일"
 description: "지원 검색 서비스, 실시간 트렌드의 데이터 기준, 기록하는 정보와 하지 않는 일을 정리합니다."
 pubDate: "2026-10-16T18:00:00+09:00"
+pinned: true
 heroImage: "../../assets/cards/silgum-introduction.png"
 ---
 
