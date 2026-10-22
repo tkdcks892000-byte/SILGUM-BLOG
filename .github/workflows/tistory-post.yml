@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       original_url:
-        description: '원본 글 공개 URL (선택)'
+        description: '원본 글 공개 URL (선택, 비우면 https://blog.silgum.co.kr/blog/<slug>/ — github.io 주소는 무시)'
         required: false
         type: string
 

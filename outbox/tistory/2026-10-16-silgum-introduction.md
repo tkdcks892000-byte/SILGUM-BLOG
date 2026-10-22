@@ -1,6 +1,6 @@
 <!-- 티스토리 반자동 발행용. 아래 제목/본문/태그를 티스토리 에디터에 붙여넣으세요. 자동 게시하지 않습니다. -->
 
-- 원본 글: https://tkdcks892000-byte.github.io/SILGUM-BLOG/blog/silgum-introduction/
+- 원본 글: https://blog.silgum.co.kr/blog/silgum-introduction/
 - 생성 모델: poolside/laguna-s-2.1:free (OpenRouter, 무료 모델)
 - 생성일: 2026-10-16
 
@@ -26,7 +26,7 @@
 
 ## 기록하는 것과 하지 않는 것
 
-실검은 완전히 무료이며 회원가입이나 로그인이 없습니다. 이름이나 이메일, 전화번호를 요구하지 않고 익명 세션 쿠키로만 검색을 셉니다. 최근 검색어는 브라우저 안에만 머물러 서버로 보내지 않으며, 순위에도 영향을 주지 않습니다. 뉴스 본문을 옮기지 않고 언론사가 공개한 RSS 헤드라인을 참고용으로만 보여주며, 로그인이나 커뮤니티, 댓글 기능도 없습니다. 자세한 정보는 [실검 소개](https://silgum.co.kr/?ref=blog_tistory)와 [원문](https://tkdcks892000-byte.github.io/SILGUM-BLOG/blog/silgum-introduction/)에서 확인할 수 있습니다.
+실검은 완전히 무료이며 회원가입이나 로그인이 없습니다. 이름이나 이메일, 전화번호를 요구하지 않고 익명 세션 쿠키로만 검색을 셉니다. 최근 검색어는 브라우저 안에만 머물러 서버로 보내지 않으며, 순위에도 영향을 주지 않습니다. 뉴스 본문을 옮기지 않고 언론사가 공개한 RSS 헤드라인을 참고용으로만 보여주며, 로그인이나 커뮤니티, 댓글 기능도 없습니다. 자세한 정보는 [실검 소개](https://silgum.co.kr/?ref=blog_tistory)와 [원문](https://blog.silgum.co.kr/blog/silgum-introduction/)에서 확인할 수 있습니다.
 
 ## 복사할 태그
 

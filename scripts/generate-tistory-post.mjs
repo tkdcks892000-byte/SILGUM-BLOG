@@ -21,7 +21,21 @@ const MAX_ATTEMPTS = 3;
 const openAiApiKey = process.env.OPENAI_API_KEY;
 const modelList = resolveModels(process.env.OPENAI_MODEL);
 const sourcePath = process.env.SOURCE_PATH;
-const originalUrl = process.env.ORIGINAL_URL || '';
+/**
+ * The canonical blog URL, not the github.io Pages host. The Tistory post is a cross-post of the
+ * published article; linking the temporary Pages address sends readers to a host that is not the
+ * product's domain and bypasses the custom-domain canonical. Derive it from the source slug unless
+ * an explicit non-github URL was provided.
+ */
+const BLOG_SITE_URL = (process.env.BLOG_SITE_URL || 'https://blog.silgum.co.kr').replace(/\/$/, '');
+const sourceSlug = sourcePath ? basename(sourcePath).replace(/\.mdx?$/, '') : '';
+const requestedOriginal = (process.env.ORIGINAL_URL || '').trim();
+const originalUrl =
+	requestedOriginal && !/github\.io/i.test(requestedOriginal)
+		? requestedOriginal
+		: sourceSlug
+			? `${BLOG_SITE_URL}/blog/${sourceSlug}/`
+			: '';
 
 function containsSecretShapedText(value) {
 	const patterns = [

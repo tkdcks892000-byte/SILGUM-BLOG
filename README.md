@@ -109,7 +109,7 @@ npm run card -- --slug my-post --square --title "실검(SILGUM) ..." --descripti
 티스토리 Open API가 종료되어 자동 게시는 하지 않습니다. 대신 발행된 블로그 글을 읽어 **붙여넣기용** 홍보글을 자동으로 만들고, 사람이 티스토리 에디터에 붙여 발행합니다.
 
 1. Actions 탭에서 **Tistory promo post (manual)** workflow를 수동 실행합니다.
-2. `source`에 원본 글 경로(예: `src/content/blog/my-post.md`)를, 필요하면 `original_url`에 원문 공개 URL을 넣습니다.
+2. `source`에 원본 글 경로(예: `src/content/blog/my-post.md`)를 넣습니다. `original_url`은 비워 두면 `https://blog.silgum.co.kr/blog/<slug>/`를 씁니다. github.io 주소를 넣어도 무시합니다.
 3. `outbox/tistory/<날짜>-<slug>.md`가 저장소에 커밋되고 artifact로도 올라옵니다. 파일의 제목·본문·태그를 복사해 티스토리에 붙여넣고 발행합니다.
 4. 발행 후 그 파일의 "발행 후 기록"에 URL과 날짜를 적어 둡니다.
 

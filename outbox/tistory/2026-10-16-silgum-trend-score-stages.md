@@ -1,6 +1,6 @@
 <!-- 티스토리 반자동 발행용. 아래 제목/본문/태그를 티스토리 에디터에 붙여넣으세요. 자동 게시하지 않습니다. -->
 
-- 원본 글: https://tkdcks892000-byte.github.io/SILGUM-BLOG/blog/silgum-trend-score-stages/
+- 원본 글: https://blog.silgum.co.kr/blog/silgum-trend-score-stages/
 - 생성 모델: poolside/laguna-s-2.1:free (OpenRouter, 무료 모델)
 - 생성일: 2026-10-16
 

@@ -1,6 +1,6 @@
 <!-- 티스토리 반자동 발행용. 아래 제목/본문/태그를 티스토리 에디터에 붙여넣으세요. 자동 게시하지 않습니다. -->
 
-- 원본 글: https://tkdcks892000-byte.github.io/SILGUM-BLOG/blog/silgum-live-trends-views-acceleration-bonus/
+- 원본 글: https://blog.silgum.co.kr/blog/silgum-live-trends-views-acceleration-bonus/
 - 생성 모델: poolside/laguna-s-2.1:free (OpenRouter, 무료 모델)
 - 생성일: 2026-10-19
 
@@ -27,7 +27,7 @@
 - 두 보너스 모두 "참고 수준"으로 분류되며, 기본 카테고리 가중치(search 0.4, news 0.3 등)보다 낮은 영향을 미칩니다.
 - 커뮤니티 글 제목은 저장되거나 표시되지 않으며, 관련 검색어 후보 추출에만 사용됩니다.
 
-자세한 내용은 [실검 소개](https://silgum.co.kr/?ref=blog_tistory)와 [원문 기사](https://tkdcks892000-byte.github.io/SILGUM-BLOG/blog/silgum-live-trends-views-acceleration-bonus/)를 참고하세요.
+자세한 내용은 [실검 소개](https://silgum.co.kr/?ref=blog_tistory)와 [원문 기사](https://blog.silgum.co.kr/blog/silgum-live-trends-views-acceleration-bonus/)를 참고하세요.
 
 ## 복사할 태그
 
