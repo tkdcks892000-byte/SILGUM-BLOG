@@ -11,6 +11,14 @@ on:
         description: '원본 글 공개 URL (선택, 비우면 https://blog.silgum.co.kr/blog/<slug>/ — github.io 주소는 무시)'
         required: false
         type: string
+      mode:
+        description: '생성 방식 (excerpt = 원문 발췌, LLM 호출 없음 / rewrite = 무료 모델 재작성)'
+        required: false
+        type: choice
+        default: excerpt
+        options:
+          - excerpt
+          - rewrite
 
 permissions:
   contents: write
@@ -35,6 +43,8 @@ jobs:
           node-version: '22.12'
 
       - name: Check required secrets
+        # 발췌 모드는 모델을 부르지 않으므로 키가 필요 없다.
+        if: inputs.mode == 'rewrite'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
@@ -47,7 +57,8 @@ jobs:
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           SOURCE_PATH: ${{ inputs.source }}
           ORIGINAL_URL: ${{ inputs.original_url }}
-        run: node scripts/generate-tistory-post.mjs
+          TISTORY_MODE: ${{ inputs.mode || 'excerpt' }}
+        run: node scripts/generate-tistory-post.mjs --mode="$TISTORY_MODE"
 
       - name: Commit the promo post to outbox
         env:
