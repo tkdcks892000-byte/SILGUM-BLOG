@@ -333,7 +333,7 @@ export function toPasteText(post, sourceRef, today) {
 		.replace(IMAGE_PATTERN, '[이미지: $1]\n$2')
 		.replace(/^\*(?!\*)(.+?)\*$/gm, '$1')
 		.replace(/\*\*([^*]+)\*\*/g, '$1')
-		.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '$1\n$2')
+		.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '$1 ($2)')
 		.replace(/`([^`]+)`/g, '$1')
 		.replace(/^##\s+/gm, '■ ')
 		.replace(/^#\s+/gm, '■ ');
@@ -461,9 +461,9 @@ export function buildExcerpt(source, { original = originalUrl, ref = TISTORY_REF
 	if (original) {
 		const target = new URL(original);
 		target.searchParams.set('ref', ref);
-		links.push('전문은 원문 [' + source.title + '](' + target.toString() + ')에서 볼 수 있습니다.');
+		links.push('더 자세한 이야기는 [원문 글](' + target.toString() + ')에서 이어집니다.');
 	}
-	links.push('실검은 [silgum.co.kr](' + PRODUCT_URL + '/?ref=' + ref + ')에서 바로 쓸 수 있습니다.');
+	links.push('직접 써보고 싶다면 [실검](' + PRODUCT_URL + '/?ref=' + ref + ')에서 시작해 보세요.');
 	blocks.push(...links);
 	return {
 		title: source.title.trim(),
