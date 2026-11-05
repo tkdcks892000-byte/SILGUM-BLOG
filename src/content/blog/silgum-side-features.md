@@ -13,7 +13,7 @@ heroImage: "../../assets/cards/silgum-side-features.png"
 
 환율과 가상자산도 같은 카드에 있습니다. 실검은 시세를 제공하는 서비스가 아니므로 현재가·등락을 직접 보여 주지 않고, 확인이 필요한 검색으로 연결합니다.
 
-![증시 트렌드 카드](/screens/side-market-1200.webp)
+![증시 트렌드 카드](/screens/side-market-1920.webp)
 *화제 종목을 누르면 검색창에 “종목 주가”가 들어갑니다. 환율과 가상자산도 같은 카드에 있습니다.*
 
 ## 오늘 날씨
@@ -22,7 +22,7 @@ heroImage: "../../assets/cards/silgum-side-features.png"
 
 카드 아래의 `오늘 날씨`·`주말 날씨`·`미세먼지` 버튼은 검색창에 `서울 오늘 날씨`처럼 다음 검색어를 넣어 줍니다. 지역 선택은 이 브라우저에만 저장되고 서버로 보내지 않습니다.
 
-![오늘 날씨 카드](/screens/side-weather-1200.webp)
+![오늘 날씨 카드](/screens/side-weather-1920.webp)
 *날씨 카드의 버튼은 검색어를 채워 주고, 검색은 사용자가 누릅니다.*
 
 ## 화제 결산
@@ -35,7 +35,7 @@ heroImage: "../../assets/cards/silgum-side-features.png"
 
 요일별에서는 아직 오지 않은 요일을 고를 수 없고, 오늘 데이터가 없으면 마지막으로 기록이 있는 날을 먼저 보여 줍니다.
 
-![화제 결산 카드](/screens/side-weekly-1200.webp)
+![화제 결산 카드](/screens/side-weekly-1920.webp)
 *이번 주·어제·요일별 탭으로 기간을 바꿔 볼 수 있습니다.*
 
 ## 마무리
