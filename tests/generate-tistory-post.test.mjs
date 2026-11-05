@@ -32,8 +32,8 @@ const squash = (text) => text.replace(/\s+/g, ' ');
 
 test('이미지 마크다운은 <img>가 되고, 캡션은 따로 <em> 문단이 된다', () => {
 	const html = toPasteHtml({ summary: '요약', body: '![실검 첫 화면](' + IMG + ')\n*첫 화면 캡션입니다.*\n\n본문 문단.' });
-	assert.match(html, /<p><img src="https:\/\/blog\.silgum\.co\.kr\/screens\/home-1920\.webp" alt="실검 첫 화면" loading="lazy"><\/p>/);
-	assert.match(html, /<p><em>첫 화면 캡션입니다\.<\/em><\/p>/);
+	assert.match(html, /<p style="text-align:center"><img src="https:\/\/blog\.silgum\.co\.kr\/screens\/home-1920\.webp" alt="실검 첫 화면" loading="lazy"><\/p>/);
+	assert.match(html, /<p style="text-align:center"><em>첫 화면 캡션입니다\.<\/em><\/p>/);
 	assert.match(html, /<p>본문 문단\.<\/p>/);
 	assert.ok(!html.includes('!'), '이미지 문법의 ! 가 남으면 안 된다');
 	assert.ok(validatePasteHtml(html));

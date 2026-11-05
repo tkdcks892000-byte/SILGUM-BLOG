@@ -12,13 +12,13 @@
 
 실검은 검색과 실시간 트렌드만 보여 주는 화면이 아닙니다. 첫 화면 양옆에는 증시 트렌드와 오늘 날씨가 있고, 왼쪽 아래에는 이번 주 화제를 모은 화제 결산 카드가 있습니다. 세 카드는 전문 서비스를 대신하지 않고, 궁금한 내용을 다음 검색어로 이어 줍니다.
 
-![실검 첫 화면](https://blog.silgum.co.kr/screens/home-1920.webp)
-*가운데는 검색과 실시간 트렌드, 양옆은 증시·날씨, 왼쪽 아래는 화제 결산입니다.*
+![증시 트렌드 카드](https://blog.silgum.co.kr/screens/side-market-1200.webp)
+*화제 종목을 누르면 검색창에 “종목 주가”가 들어갑니다. 환율과 가상자산도 같은 카드에 있습니다.*
 
-![오늘 날씨 카드](https://blog.silgum.co.kr/screens/side-weather-1920.webp)
+![오늘 날씨 카드](https://blog.silgum.co.kr/screens/side-weather-1200.webp)
 *날씨 카드의 버튼은 검색어를 채워 주고, 검색은 사용자가 누릅니다.*
 
-![화제 결산 카드](https://blog.silgum.co.kr/screens/side-weekly-1920.webp)
+![화제 결산 카드](https://blog.silgum.co.kr/screens/side-weekly-1200.webp)
 *이번 주·어제·요일별 탭으로 기간을 바꿔 볼 수 있습니다.*
 
 더 자세한 이야기는 [원문 글](https://blog.silgum.co.kr/blog/silgum-side-features/?ref=blog_tistory)에서 이어집니다.
