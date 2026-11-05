@@ -283,13 +283,13 @@ export function toPasteHtml(post) {
 		// 이미지 한 줄과 그 아래 캡션(`*...*`)은 각각 따로 둔다. 문단에 합치면 캡션이 이미지 옆에 붙는다.
 		if (/^!\[[^\]]*\]\([^)\s]+\)$/.test(line)) {
 			flush();
-			out.push('<p style="text-align:center">' + inlineHtml(line) + '</p>');
+			out.push('<p>' + inlineHtml(line) + '</p>');
 			continue;
 		}
 		const caption = line.match(/^\*(?!\*)(.+?)\*$/);
 		if (caption) {
 			flush();
-			out.push('<p style="text-align:center"><em>' + inlineHtml(caption[1]) + '</em></p>');
+			out.push('<p><em>' + inlineHtml(caption[1]) + '</em></p>');
 			continue;
 		}
 		paragraph.push(line);
